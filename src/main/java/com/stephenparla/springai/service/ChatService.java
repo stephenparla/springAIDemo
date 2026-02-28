@@ -8,13 +8,6 @@ import com.springai.chat.ChatAI;
 
 @Service
 public class ChatService {
-}
-
-
-
-@Service
-
-public class ChatCompletionService {
 
     @Autowired
 
