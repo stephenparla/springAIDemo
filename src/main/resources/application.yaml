@@ -6,7 +6,7 @@ spring:
 
   # Configure OpenRouter API key (replace with your actual API key)
   ai:
-    openai:
+    OpenAI:
       api-key: ${API_KEY}
 
   # Set the base URL to OpenRouter's API endpoint
