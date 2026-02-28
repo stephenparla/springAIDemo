@@ -1,6 +1,8 @@
 spring:
   application:
     name: springai
+  config:
+    import: optional:file:.env[.properties]
 
   # Configure OpenRouter API key (replace with your actual API key)
   ai:
