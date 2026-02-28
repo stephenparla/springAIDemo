@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ChatService {
 
     @Autowired
-
     private ChatClient chatClient;
 
     public String getChatCompletion(String userMessage) {
