@@ -1,16 +1,16 @@
 spring:
   application:
     name: springai
-  config:
-    import: optional:file:.env[.properties]
 
   # Configure OpenRouter API key (replace with your actual API key)
   ai:
-    OpenAI:
+    openai:
+      api-key: ${API_KEY}
+    anthropic:
       api-key: ${API_KEY}
 
   # Set the base URL to OpenRouter's API endpoint
-      base-url: 'https://openrouter.ai/api'
+      base-url: 'https://openrouter.ai/api/v1'
   
   # Specify the model you want to use (e.g., a free one, check the OpenRouter site for options)
       chat:
