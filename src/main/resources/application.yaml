@@ -8,7 +8,30 @@ spring:
       api-key: ${API_KEY}
       base-url: https://openrouter.ai/api
 
-  # Specify the model you want to use (e.g., a free one, check the OpenRouter site for options)
+      # Specify the model you want to use (e.g., a free one, check the OpenRouter site for options)
       chat:
         options:
           model: anthropic/claude-3.5-haiku-20241022
+    openrouter:
+      chat:
+        options:
+          models:
+            - google/gemini-2.0-flash-exp:free
+            - meta-llama/llama-3.3-70b-instruct
+            - deepseek/deepseek-chat
+            - qwen/qvq-72b-preview
+            - openai/gpt-4o-2024-11-20
+            - amazon/nova-pro-v1
+            - mistralai/mistral-large-2411
+            - anthropic/claude-3.5-haiku-20241022
+            - perplexity/llama-3.1-sonar-huge-128k-online
+            - pygmalionai/mythalion-13b
+            - anthracite-org/magnum-v2-72b
+            - x-ai/grok-2-1212
+
+    openai:
+      api-key: ${API_KEY}
+      base_url: https://openrouter.ai/api
+      chat:
+        options:
+          model: deepseek/deepseek-chat
