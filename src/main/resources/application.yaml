@@ -4,15 +4,11 @@ spring:
 
   # Configure OpenRouter API key (replace with your actual API key)
   ai:
-    openai:
-      api-key: ${API_KEY}
     anthropic:
       api-key: ${API_KEY}
+      base-url: https://openrouter.ai/api
 
-  # Set the base URL to OpenRouter's API endpoint
-      base-url: 'https://openrouter.ai/api/v1'
-  
   # Specify the model you want to use (e.g., a free one, check the OpenRouter site for options)
       chat:
         options:
-          model: meta-llama/llama-3.3-70b-instruct:free
+          model: anthropic/claude-3.5-haiku-20241022
