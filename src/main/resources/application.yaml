@@ -1,0 +1,20 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: springai
+
+  # Configure OpenRouter API key (replace with your actual API key)
+  ai:
+    openai:
+      api-key: ${API_KEY}
+      base-url: https://openrouter.ai/api
+
+      # Specify the model you want to use (e.g., a free one, check the OpenRouter site for options)
+      chat:
+        options:
+          model: openai/gpt-oss-20b
+
+    #needed to disable spring AI's autoconfigure to anthropic.
+    model:
+      chat: openai

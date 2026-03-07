@@ -1,11 +1,8 @@
-# springAIDemo
-First Project using Chat API of Spring AI
-This project is to get hands on with LLM and AI Agents.
-Used Spring AI in the backend to handle the user prompts.
-Spring AI API will be communicating with Open AI Agents to handle the tasks at the backend based on user prmpts.
-Open Router as a work around to get the API Key for LLM functionality over Open AI.
-React application as a front-end UI.
-Code can be found in my Github repo mentioned in the contact info.
-Project Name: springAIDemo
+# SpringAI using Open Router
+Project using Chat API of Spring AI.
+
+By Default Spring AI's Anthropic Autoconfigure will be enabled.
+
+Disable Anthropic (whose models are not free) and enable OpenAI to use free models with Open Router.
 
 
