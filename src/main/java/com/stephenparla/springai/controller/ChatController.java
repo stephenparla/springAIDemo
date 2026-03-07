@@ -13,11 +13,11 @@ public class ChatController {
     @Autowired
     ChatService chatService;
 
-    @PostMapping("/getPrompt")
-    public String getFirstMessage(@RequestBody String userMessage) {
+    @PostMapping("/prompt")
+    public String prompt(@RequestBody String userMessage) {
         String response = "";
         try {
-            response = chatService.getChatCompletion(userMessage);
+            response = chatService.chatCompletion(userMessage);
         } catch (Exception e){
             log.error("Error:{}", e.getMessage());
         }
