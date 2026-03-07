@@ -14,8 +14,8 @@
 	<name>springai</name>
 	<description>Demo project for Spring AI</description>
 	<properties>
-		<maven.compiler.release>25</maven.compiler.release>
-		<spring-ai.version>1.1.2</spring-ai.version>
+		<java.version>25</java.version>
+		<spring-ai.version>2.0.0-M2</spring-ai.version>
 	</properties>
 	<url/>
 	<licenses>
@@ -64,19 +64,14 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-starter-model-openai</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-client-chat</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-resolver-dns-native-macos</artifactId>
 			<version>4.2.10.Final</version>
 			<classifier>osx-aarch_64</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-starter-model-openai</artifactId>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
@@ -118,5 +113,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
