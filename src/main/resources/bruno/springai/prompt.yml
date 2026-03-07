@@ -1,0 +1,205 @@
+info:
+  name: prompt
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8080/api/aichat/prompt
+  body:
+    type: text
+    data: Tell me about Sachin Tendulkar
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: Sucess_Response
+    description: Generated Random Number
+    request:
+      url: http://localhost:8080/api/aichat/getPrompt
+      method: POST
+      body:
+        type: text
+        data: generate Random Number
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: content-type
+          value: application/json
+        - name: content-length
+          value: "53"
+        - name: date
+          value: Sat, 07 Mar 2026 04:19:00 GMT
+        - name: keep-alive
+          value: timeout=60
+        - name: connection
+          value: keep-alive
+      body:
+        type: json
+        data: "Here’s a randomly generated number for you: **172**"
+  - name: Success_Response_2
+    description: Generating Sachin's Biography
+    request:
+      url: http://localhost:8080/api/aichat/prompt
+      method: POST
+      body:
+        type: text
+        data: Tell me about Sachin Tendulkar
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: content-type
+          value: application/json
+        - name: content-length
+          value: "8000"
+        - name: date
+          value: Sat, 07 Mar 2026 04:58:43 GMT
+        - name: keep-alive
+          value: timeout=60
+        - name: connection
+          value: keep-alive
+      body:
+        type: json
+        data: |-
+          ### Sachin Tendulkar – A Quick‑Reference Biography  
+
+          | **Category** | **Details** |
+          |--------------|-------------|
+          | **Full name** | Sachin Ramesh Tendulkar |
+          | **Birth** | 24 October 1973, Gwalior (Madhya Pradesh), India |
+          | **Batting style** | Right‑handed, fast‑scroll, classic technique |
+          | **Bowling** | Right‑arm off‑spin (very occasional) |
+          | **Role** | Middle‑order batsman, occasional captain |
+
+          ---
+
+          ## 1. Early Life & Family
+
+          | Aspect | Notes |
+          |--------|-------|
+          | **Family background** | Father Ramesh Tendulkar was a plastic surgeon; mother Suman was a college lecturer. Their working‑class background meant Sachin started cricket on improvised pitches beside a local slum. |
+          | **First love** | Even as a toddler, he was obsessed with cricket—watching EMI India Channel programmes, then the legendary *Sir Garfield Sobers* clips. |
+          | **Youth clubs** | Joined the Maharashtra Cricket Association Academy at 9, and soon after, selection into the junior Maharashtrian team. |
+          | **Debut** | Captaincy of Maharashtra’s Under‑19 side at 15; first Indian schoolboy Test in 1988 vs. England’s school team. |
+
+          ---
+
+          ## 2. International Career – A Chronology of Milestones
+
+          | Year | Event | Significance |
+          |------|-------|---------------|
+          | **1989** | ODI debut vs Pakistan – 3 wickets, 04‑run score and becomes 14th player to win “Man of the Match”. | First Indian to win an ODI ‘Man of the Match’ as a bowler. |
+          | **1990** | Test debut vs Pakistan – 12‑run; part of the Maharashtrian “openers cohort”. | Earned national cap at 16. |
+          | **1990–1995** | Stroke‑sculpting years: numerous centuries, 164 runs 199, fast single‑eight. | Quick build‑up of a strike‑oriented reputation. |
+          | **1994–95** | Shankers – World Cup 1995 – 177 vs England, made India a viable contender. |
+          | **1999** | World Cup 1999 – Score 139 vs UAE; India lost in group stage. |
+          | **2000** | **First double‑hundred** – 200* vs New Zealand. | First Indian to reach 200 in an innings; India won. |
+          | **2007** | **100th international century** – 172 vs Kenya (World Cup). | A key record in cricket history. |
+          | **2010** | A rare **200‑plus** in a T20? No – another 200* vs Australia (Test). | Overall 200 in all formats. |
+          | **2011** | **World Cup Winner** – 126 vs Bangladesh, captaincy a big moment. | Led India to their second World Cup win. |
+          | **2012** | Captaincy of India for the first time in a Test series vs Australia. |
+          | **2012‑13** | Final international match (Test vs Pakistan) – 4,829 runs scored by the end. | Retirement at 39 on 15 March 2013. |
+
+          ---
+
+          ## 3. Record‑Setting Highlights
+
+          | Record | Detail | Context |
+          |--------|--------|---------|
+          | **Highest international run‑scorer** | 34 357 runs (15 921 Tests + 18 426 ODIs) | Surpassed Brian Lara & Ricky Ponting. |
+          | **Most international centuries** | 100 (10 Tests, 90 ODIs) | Tied only with Ricky Ponting for 3rd all‑time. |
+          | **Most Test centuries** | 51 | Brings India to the front in test‑century ranking. |
+          | **Most ODI centuries** | 49 | Surpassing Derek Pringle. |
+          | **Highest individual score in Test** | 248* (2008 vs Sri Lanka) | A calm, patient innings. |
+          | **Only player to score 200+ in a batting style** | 200* vs New Zealand (2000) | First Indian double‑hundred. |
+          | **Best bowling in Tests** | 5/47 (2002 vs South Africa) | Though seldom used. |
+          | **Classical ‘100 national record’** | 10 international hundred marks—makes him an icon worldwide. |
+
+          ---
+
+          ## 4. Accolades & Awards
+
+          | Award | Year | Notes |
+          |-------|------|-------|
+          | **Padma Shri** | 1999 | India's first civilian honour in sports. |
+          | **Padma Bhushan** | 2008 | Second civilian honour. |
+          | **Padma Vibhushan** | 2014 | Third highest civilian award. |
+          | **ICC Cricket World Player of the Year** | 2008 (2nd time) | Acknowledged mastery. |
+          | **ICC Hall of Fame Inductee** | 2017 | Cementing his status as a legend. |
+          | **Wisden Cricketers of the Year** | 2000, 2006, 2009 | 3 times, uncommon. |
+          | **CFA Cricket Award for Best International Performance** | 2006 | Rewarded by Cricket Australia. |
+          | **MVP in 2016 ICC Awards** | 2016 | Selected by peers worldwide. |
+
+          ---
+
+          ## 5. Playing Style & Mental Traits
+
+          * **Technique** – A classical upright stance with a very strong wrists; combined power with grace; rare ability to run back and front pure shots from the same writ.
+          * **Versatility** – Mastered all 5 major surfaces (hard, pitch, spin, bouncy, seamer). Adapted quick‑on‑the‑run vs. great fortitude vs. long‑span.
+          * **Consistency** – 3 774 tests 120 centuries; remained a mainstay for two decades.
+          * **Leadership** – Captained India on 46 ODIs and 16 Tests (mixed success), but led the wicketless 1‑two‑18–1 India to 2011 World Cup.
+          * **Work‑ethic** – Known for rigorous training: 10‑minute shadow‑practice in early sports; monitored by coaches in a de‑epic game. 
+
+          ---
+
+          ## 6. Off‑Field Contributions
+
+          | Domain | Contribution |
+          |--------|--------------|
+          | **Social** | Involved in many causes—children’s education in rural India, HIV/AIDS, and the “Israel–Sri‑Lankan game” 2005 fundraiser. |
+          | **Cultural** | Became a symbol for “the heart of India”; celebrated in TV series, documentaries and children's literature. |
+          | **Business** | Endorsements with brands: Pepsi, Nivea, Tata, etc. Owns a cricket academy (Devendra Bundela Gym?). |
+          | **Politics** | Visiting many political luminaries; though not political, instrumental in bridging sports and society. |
+          | **Philanthropy** | Co-founded the “Sachin Tendulkar Foundation” (cryptic philanthropic group). |
+
+          ---
+
+          ## 7. Legacy – “The Little Master”
+
+          | Angle | Significance |
+          |-------|--------------|
+          | **Statistical** | 10‑83 century record: Only five cricketers have ever scored 100! |
+          | **Inspirational** | Taught Indians to see cricket as more than a sport—cultural identity. |
+          | **Technical** | Revitalised the “back‑hand counter‑attack”, inspiring a generation of left‑handed bowlers. |
+          | **Sporting Education** | Academy at Pune: Brought principled cricket training to all socio‑economic levels. |
+          | **National Hero** | Used to be chosen as “National Cricket Player of the Century” by India’s sports analogs. |
+
+          ---
+
+          ## 8. Fact Box
+
+          | Fact | Value |
+          |------|-------|
+          | **Physical stature** | 5 ft 9 in (175 cm) – not the tallest but carried with strength |
+          | **IPL participation** | 2008–09 – Delhi Daredevils (now Delhi Capitals) – Re‑unites as an icon in ten‑sized league. |
+          | **World Cup performances** | 4 tournaments – 175 runs, 5 wickets, 2‑time top scorer. |
+          | **Post‑retirement engagements** | Co‑author of *Playing It My Way* (2012), establishing the first educational campus project for cricket in India. |
+
+          ---
+
+          ## 9. Quick Trivia
+
+          1. **First “100‑plus” in all 3 formats**: Only a handful of players (e.g., Mahela Jayawardene, Ricky Ponting) also have 100+ in Tests, ODIs, and T20s.  
+          2. **Captaincy Milestones**: 50–99 run innings as captain against New Zealand in 2009.  
+          3. **Four‑three‑two‑ten**: His 80th Test at 13 300 runs was a swift triple‑digit with 6 wickets – unbelievably rare.
+
+          ---
+
+          ## 10. Wisely, the Enduring Chords
+
+          - **Humanity**: An exemplar of humility even after accolades.  
+          - **Spectator**: On a matchday, fans sang “Jab Dono” after his innings.  
+          - **Word of Wisdom**: “People should follow their dreams; the work is part of the dream itself.”
+
+          ---
+
+          ### Synopsis
+
+          Sachin Tendulkar is not only an extraordinary performer on the field but a cultural icon worldwide. Born in 1973 as a Mumbai boy, he became the sport’s most prolific run‑scorer, set record after record, and led India to triumph while staying gentle and modest. Whether you see him as a sporting hero, a bitterly humble adult, or 100 Chinese scroll panels, Sachin epitomises the confluence of passion, endurance, and grace – the **Little Master** of the pitch.

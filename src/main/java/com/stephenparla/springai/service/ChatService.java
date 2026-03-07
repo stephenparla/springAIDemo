@@ -15,7 +15,7 @@ public class ChatService {
         this.chatClient = chatClientBuilder.build();
     }
 
-    public String getChatCompletion(String userMessage) {
+    public String chatCompletion(String userMessage) {
         return chatClient.prompt(userMessage).call().content();
     }
 }
