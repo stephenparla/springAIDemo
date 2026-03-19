@@ -17,10 +17,19 @@ public class ChatController {
     public String prompt(@RequestBody String userMessage) {
         String response = "";
         try {
+            log.info("inside chatbot!!");
             response = chatService.chatCompletion(userMessage);
+            log.info("chatbot request success");
         } catch (Exception e){
             log.error("Error:{}", e.getMessage());
         }
         return response;
     }
+
+    @GetMapping("/ping")
+    public String ping() {
+        log.info("ping success");
+        return "success";
+    }
 }
+

@@ -18,3 +18,7 @@ spring:
     #needed to disable spring AI's autoconfigure to anthropic.
     model:
       chat: openai
+
+user:
+  name: ${username}
+  password: ${password}

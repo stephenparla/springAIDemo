@@ -1,5 +1,9 @@
 package com.stephenparla.springai.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stephenparla.springai.util.ChatConstants;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,27 +17,40 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Value("${user.name}")
+    private String username;
+
+    @Value("${user.password}")
+    private String password;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/error").permitAll()
+                        .requestMatchers("/api/aichat/ping").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .successHandler((request, response, authentication) -> {
-                            // Call other endpoint on success
-                            response.sendRedirect("/api/aichat/prompt");
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.setContentType("application/json");
+
+                            Map<String, Object> data = new HashMap<>();
+                            data.put("message", "Login successful!");
+                            data.put("username", authentication.getName());
+                            response.getOutputStream().println(objectMapper.writeValueAsString(data));
                         })
                         .failureHandler((request, response, exception) -> {
-                            // Handle failure (e.g., redirect to login with error)
-                            response.sendRedirect("/login?error=true");
+                            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                         }))
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
@@ -43,9 +60,9 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         // Example of an in-memory user store
         UserDetails user = User.builder()
-                .username("user")
-                .password(passwordEncoder().encode("password"))
-                .roles("USER")
+                .username(username)
+                .password(passwordEncoder().encode(password))
+                .roles(ChatConstants.USER)
                 .build();
         return new InMemoryUserDetailsManager(user); //
     }
