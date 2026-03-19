@@ -3,6 +3,9 @@ spring:
     import: optional:file:.env[.properties]
   application:
     name: springai
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.anthropic.autoconfigure.AnthropicChatAutoConfiguration
 
   # Configure OpenRouter API key (replace with your actual API key)
   ai:
@@ -20,5 +23,9 @@ spring:
       chat: openai
 
 user:
-  name: ${username}
-  password: ${password}
+  name: ${USER_NAME}
+  password: ${USER_PASSWORD}
+
+logging:
+  level:
+    root: INFO

@@ -1,8 +1,6 @@
 package com.stephenparla.springai.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.stephenparla.springai.error.CustomFailureHandler;
-import com.stephenparla.springai.util.ChatConstants;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -37,37 +36,40 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/aichat/ping", "/login").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/aichat/ping").permitAll()
+                        .requestMatchers("/api/**").authenticated()
+                        .anyRequest().permitAll()
                 )
-                .formLogin(form -> form
-                        .successHandler((request, response, authentication) -> {
-                            response.setStatus(HttpServletResponse.SC_OK);
+                .httpBasic(basic -> basic
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
-
-                            Map<String, Object> data = new HashMap<>();
-                            data.put("message", "Login successful!");
-                            data.put("username", authentication.getName());
-                            response.getOutputStream().println(objectMapper.writeValueAsString(data));
+                            
+                            Map<String, Object> errorData = new HashMap<>();
+                            errorData.put("error", "Unauthorized");
+                            errorData.put("message", authException.getMessage());
+                            response.getOutputStream().println(objectMapper.writeValueAsString(errorData));
                         })
-                        .failureHandler(new CustomFailureHandler()))
+                )
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
 
     @Bean
     public UserDetailsService userDetailsService() {
-        // Example of an in-memory user store
+        // Use username and password from .env file (application.yaml properties)
         UserDetails user = User.builder()
-                .username("username")
-                .password(passwordEncoder().encode("password"))
-                .roles(ChatConstants.USER)
+                .username(username)
+                .password(passwordEncoder().encode(password))
+                .roles("USER")
                 .build();
-        return new InMemoryUserDetailsManager(user); //
+        return new InMemoryUserDetailsManager(user);
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Use BCrypt as the password encoder
+        // Use NoOpPasswordEncoder to match plain text passwords from .env
+        // For production, use BCryptPasswordEncoder and store hashed passwords
+        return NoOpPasswordEncoder.getInstance();
     }
 }
