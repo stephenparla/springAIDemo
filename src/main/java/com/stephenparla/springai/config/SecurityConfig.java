@@ -1,6 +1,7 @@
 package com.stephenparla.springai.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stephenparla.springai.error.CustomFailureHandler;
 import com.stephenparla.springai.util.ChatConstants;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +37,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/aichat/ping").permitAll()
+                        .requestMatchers("/api/aichat/ping", "/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -49,9 +50,7 @@ public class SecurityConfig {
                             data.put("username", authentication.getName());
                             response.getOutputStream().println(objectMapper.writeValueAsString(data));
                         })
-                        .failureHandler((request, response, exception) -> {
-                            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                        }))
+                        .failureHandler(new CustomFailureHandler()))
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
@@ -60,8 +59,8 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         // Example of an in-memory user store
         UserDetails user = User.builder()
-                .username(username)
-                .password(passwordEncoder().encode(password))
+                .username("username")
+                .password(passwordEncoder().encode("password"))
                 .roles(ChatConstants.USER)
                 .build();
         return new InMemoryUserDetailsManager(user); //
