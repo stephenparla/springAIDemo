@@ -1,0 +1,19 @@
+name: prod
+type: Environment
+
+# 🌐 Network Configuration
+network:
+  vpc:
+    # Use 'public' subnets for a cheaper portfolio setup (avoids $32/mo NAT Gateway)
+    # If you want high security, leave this out to use default private subnets.
+    placement: 'public'
+
+# 🚦 Load Balancer Configuration
+http:
+  public:
+    # This creates the entry point for your Envoy sidecar
+    certificates: [] # Add your ACM ARN here later for HTTPS (e.g. 'arn:aws:acm:...')
+
+# 📊 Monitoring (SDE 3 Best Practice)
+observability:
+  container_insights: true # Gives you CPU/RAM graphs in the AWS Console
