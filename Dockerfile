@@ -11,7 +11,8 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # --- Stage 2: Runtime Stage ---
-FROM eclipse-temurin:17-jre-alpine
+# 🌟 REMOVED -alpine to ensure arm64 (Mac) compatibility
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # 🛡️ 3. Create the 'bubble' user and group for security
