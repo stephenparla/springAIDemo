@@ -20,6 +20,7 @@ static_resources:
                           route:
                             cluster: chatbot_service
                             prefix_rewrite: "/" # Strip /chatbot before sending to Spring Boot
+                            timeout: 60s
                 http_filters:
                   - name: envoy.filters.http.router
                     typed_config:
@@ -27,7 +28,7 @@ static_resources:
 
   clusters:
     - name: chatbot_service
-      connect_timeout: 0.25s
+      connect_timeout: 2s
       type: STATIC
       lb_policy: ROUND_ROBIN
       load_assignment:
