@@ -8,11 +8,13 @@ network:
     # If you want high security, leave this out to use default private subnets.
     placement: 'public'
 
-# 🚦 Load Balancer Configuration
+# 🌐 Link your domain
+cdn: true # Optional: Adds CloudFront for global speed and HTTPS
 http:
   public:
-    # This creates the entry point for your Envoy sidecar
-    certificates: [] # Add your ACM ARN here later for HTTPS (e.g. 'arn:aws:acm:...')
+    domain: theprohub.org
+    # Copilot will automatically try to create an SSL certificate for this domain
+
 
 # 📊 Monitoring (SDE 3 Best Practice)
 observability:
