@@ -16,13 +16,8 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # 🛡️ 3. Create the 'bubble' user and group for security
-RUN addgroup -S bubble && adduser -S bubble -G bubble
-
-# 4. Copy the jar and change ownership to the 'bubble' user
-# This ensures the 'bubble' user has permission to read the file
-COPY --from=build --chown=bubble:bubble /app/target/*.jar app.jar
-
-# 👤 5. Switch to the 'bubble' user
+# Create a system user 'bubble' without a password and with a home directory
+RUN useradd -m bubble
 USER bubble
 
 # 6. Expose Spring Boot port
