@@ -2,12 +2,15 @@ spring:
   config:
     import: optional:file:.env[.properties]
   application:
-    name: springai
+    name: chatbot
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.anthropic.autoconfigure.AnthropicChatAutoConfiguration
 
   # Configure OpenRouter API key (replace with your actual API key)
   ai:
     openai:
-      api-key: ${API_KEY}
+      api-key: ${ANTHROPIC_API_KEY}
       base-url: https://openrouter.ai/api
 
       # Specify the model you want to use (e.g., a free one, check the OpenRouter site for options)
@@ -18,3 +21,6 @@ spring:
     #needed to disable spring AI's autoconfigure to anthropic.
     model:
       chat: openai
+logging:
+  level:
+    root: INFO

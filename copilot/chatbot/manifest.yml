@@ -1,0 +1,31 @@
+name: chatbot
+type: Load Balanced Web Service
+
+image:
+  build: Dockerfile # Your Spring Boot app in root
+  port: 8080
+
+sidecars:
+  envoy:
+    port: 80
+    image:
+      build: ./envoy/Dockerfile # Copilot will go here and build it for you!
+
+http:
+  path: '/'
+  target_port: 80 # ALB sends traffic to Envoy
+  healthcheck: '/chatbot/actuator/health' # Envoy proxies this to Spring Boot
+  success_codes: '200'
+  healthy_threshold: 3
+  unhealthy_threshold: 2
+  interval: 15s
+  timeout: 10s
+
+secrets:
+  ANTHROPIC_API_KEY: ANTHROPIC_API_KEY
+  USER_NAME: USER_NAME
+  USER_PASSWORD: USER_PASSWORD
+
+environments:
+  prod:
+    count: 1
