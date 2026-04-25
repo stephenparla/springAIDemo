@@ -1,28 +1,22 @@
-# The manifest for the "prod" environment.
-# Read the full specification for the "Environment" type at:
-#  https://aws.github.io/copilot-cli/docs/manifest/environment/
+name: chatbot
+type: Load Balanced Web Service
 
-# Your environment name will be used in naming your resources like VPC, cluster, etc.
-name: prod
-type: Environment
+image:
+  build: Dockerfile # Your Spring Boot app in root
+  port: 8080
 
-# Import your own VPC and subnets or configure how they should be created.
-# network:
-#   vpc:
-#     id:
+sidecars:
+  envoy:
+    port: 80
+    image:
+      build: ./envoy/Dockerfile # Copilot will go here and build it for you!
 
-# Configure the load balancers in your environment, once created.
-# http:
-#   public:
-#   private:
-
-# Configure observability for your environment resources.
-observability:
-  container_insights: false
+http:
+  path: '/'
+  target_port: 80 # ALB sends traffic to Envoy
+  healthcheck: '/chatbot/actuator/health' # Envoy proxies this to Spring Boot
 
 secrets:
   ANTHROPIC_API_KEY: ANTHROPIC_API_KEY
   USER_NAME: USER_NAME
   USER_PASSWORD: USER_PASSWORD
-
-
