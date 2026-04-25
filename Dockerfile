@@ -25,7 +25,6 @@ COPY --from=build --chown=bubble:bubble /app/target/*.jar app.jar
 USER bubble
 
 # 6. Expose Spring Boot port
+COPY --from=build /target/*.jar app.jar
 EXPOSE 8080
-
-# 7. Optimized JVM Entrypoint
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "/app.jar"]
