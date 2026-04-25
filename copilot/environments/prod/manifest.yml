@@ -1,0 +1,21 @@
+name: prod
+type: Environment
+
+# 🌐 Network Configuration
+network:
+  vpc:
+    # Use 'public' subnets for a cheaper portfolio setup (avoids $32/mo NAT Gateway)
+    # If you want high security, leave this out to use default private subnets.
+    placement: 'public'
+
+# 🌐 Link your domain
+cdn: true # Optional: Adds CloudFront for global speed and HTTPS
+http:
+  public:
+    domain: theprohub.org
+    # Copilot will automatically try to create an SSL certificate for this domain
+
+
+# 📊 Monitoring (SDE 3 Best Practice)
+observability:
+  container_insights: true # Gives you CPU/RAM graphs in the AWS Console
