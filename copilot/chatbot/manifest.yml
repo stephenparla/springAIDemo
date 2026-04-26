@@ -22,9 +22,9 @@ http:
   timeout: 10s
 
 secrets:
-  ANTHROPIC_API_KEY: ANTHROPIC_API_KEY
-  USER_NAME: USER_NAME
-  USER_PASSWORD: USER_PASSWORD
+  ANTHROPIC_API_KEY: 'arn:aws:secretsmanager:us-east-1:470276446935:secret:ANTHROPIC_API_KEY-DWxFWR'
+  USER_NAME: arn:aws:secretsmanager:us-east-1:470276446935:secret:USER_NAME-8apSQt
+  USER_PASSWORD: arn:aws:secretsmanager:us-east-1:470276446935:secret:USER_PASSWORD-zuNi6K
 
 environments:
   prod:
