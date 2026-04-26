@@ -3,10 +3,11 @@ Parameters:
     Type: String
   Env:
     Type: String
-  Name: String
+  # Fix: Name must follow the same Type pattern
+  Name:
+    Type: String
 
 Resources:
-  # This grants Fargate permission to pull the images it just built
   ECRRegistryPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -20,7 +21,7 @@ Resources:
               - "ecr:BatchCheckLayerAvailability"
               - "ecr:GetDownloadUrlForLayer"
               - "ecr:BatchGetImage"
-            Resource: "*" # Required for the Auth Token call
+            Resource: "*"
       Roles:
         - !Ref ExecutionRole
 
