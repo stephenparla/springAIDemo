@@ -1,0 +1,29 @@
+Parameters:
+  App:
+    Type: String
+  Env:
+    Type: String
+  Name: String
+
+Resources:
+  # This grants Fargate permission to pull the images it just built
+  ECRRegistryPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: "Allow Fargate to pull chatbot and envoy images"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "ecr:GetAuthorizationToken"
+              - "ecr:BatchCheckLayerAvailability"
+              - "ecr:GetDownloadUrlForLayer"
+              - "ecr:BatchGetImage"
+            Resource: "*" # Required for the Auth Token call
+      Roles:
+        - !Ref ExecutionRole
+
+Outputs:
+  ECRPolicyArn:
+    Value: !Ref ECRRegistryPolicy
