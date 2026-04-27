@@ -40,6 +40,7 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/api/aichat/ping").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
