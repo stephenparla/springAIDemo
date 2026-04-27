@@ -26,7 +26,7 @@ http:
   path: '/'
   target_port: 80
   # 💡 CHANGE 1: Simplify health check to the root
-  healthcheck: '/'
+  healthcheck: '/chatbot/actuator/health'
   # 💡 CHANGE 2: Add a massive grace period (300 seconds = 5 minutes)
   # This prevents ECS from killing the task while it's still booting
   grace_period: 300s
