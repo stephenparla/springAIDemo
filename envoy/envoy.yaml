@@ -7,6 +7,7 @@ static_resources:
         - filters:
             - name: envoy.filters.network.http_connection_manager
               typed_config:
+                # 🛑 FIX: Use full URL below
                 "@type": ://googleapis.com
                 stat_prefix: ingress_http
                 route_config:
@@ -15,15 +16,15 @@ static_resources:
                     - name: backend
                       domains: ["*"]
                       routes:
-                        # 🤖 Route for Chatbot
                         - match: { prefix: "/chatbot" }
                           route:
                             cluster: chatbot_service
-                            prefix_rewrite: "/" # Strip /chatbot before sending to Spring Boot
+                            prefix_rewrite: "/"
                             timeout: 60s
                 http_filters:
                   - name: envoy.filters.http.router
                     typed_config:
+                      # 🛑 FIX: Use full URL below
                       "@type": ://googleapis.com
 
   clusters:
