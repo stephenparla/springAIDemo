@@ -63,9 +63,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(java.util.Arrays.asList(
-                "http://localhost:3000",      // React development server
-                "http://localhost:5173",      // Vite development server
-                "http://localhost:8080"       // Same origin fallback
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "https://theprohub.org",    // 👈 Add your domain
+                "https://theprohub.org" // 👈 Add your domain
         ));
         configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
