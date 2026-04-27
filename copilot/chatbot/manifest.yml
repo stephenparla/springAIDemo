@@ -5,6 +5,12 @@ image:
   build: Dockerfile # Your Spring Boot app in root
   port: 8080
 
+
+exec: true
+
+cpu: 512
+memory: 1024
+
 sidecars:
   envoy:
     port: 80
