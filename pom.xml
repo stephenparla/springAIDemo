@@ -5,10 +5,10 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.0</version>
+		<version>4.0.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.stephenparla</groupId>
+	<groupId>com.theprohub</groupId>
 	<artifactId>springai</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>springai</name>
@@ -34,12 +34,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
-			<version>3.2.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-restclient</artifactId>
-			<version>4.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -62,6 +60,7 @@
 		<dependency>
 			<groupId>org.springframework.retry</groupId>
 			<artifactId>spring-retry</artifactId>
+			<version>2.0.12</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -75,7 +74,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-security-test</artifactId>
-			<version>4.0.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
