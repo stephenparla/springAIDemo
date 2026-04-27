@@ -10,7 +10,7 @@ spring:
   # Configure OpenRouter API key (replace with your actual API key)
   ai:
     openai:
-      api-key: ddsd
+      api-key: ${ANTHROPIC_API_KEY}
       base-url: https://openrouter.ai/api
 
       # Specify the model you want to use (e.g., a free one, check the OpenRouter site for options)
@@ -25,7 +25,20 @@ logging:
   level:
     root: INFO
 
-USER_NAME: user
-USER_PASSWORD: password
+USER_NAME: ${USER_NAME}
+USER_PASSWORD: $(USER_PASSWORD)
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+server:
+  port: 8080
+
 
 

@@ -22,3 +22,8 @@ http:
 # 📊 Monitoring (SDE 3 Best Practice)
 observability:
   container_insights: true # Gives you CPU/RAM graphs in the AWS Console
+
+secrets:
+  ANTHROPIC_API_KEY: ANTHROPIC_API_KEY
+  USER_PASSWORD: USER_PASSWORD
+  USER_NAME: USER_NAME
