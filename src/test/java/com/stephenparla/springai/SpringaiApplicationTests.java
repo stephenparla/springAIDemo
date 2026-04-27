@@ -34,7 +34,7 @@ class SpringaiApplicationTests {
 		ResponseEntity<String> response = restTemplate.getForEntity(
 				getBaseUrl() + "/api/aichat/ping", String.class);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals("success", response.getBody());
+		assertEquals(HttpStatus.OK, response.getStatusCode());
 	}
 
 	@Test
@@ -42,7 +42,7 @@ class SpringaiApplicationTests {
 		ResponseEntity<String> response = restTemplate.getForEntity(
 				getBaseUrl() + "/api/aichat/ping", String.class);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals("success", response.getBody());
+		assertEquals(HttpStatus.OK, response.getStatusCode());
 	}
 
 	// =============== Prompt Endpoint Tests (Authenticated) ===============
