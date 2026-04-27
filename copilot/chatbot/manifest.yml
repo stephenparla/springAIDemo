@@ -24,8 +24,18 @@ sidecars:
 # 5. Routing
 http:
   path: '/'
-  target_port: 80 # ALB -> Envoy
+  target_port: 80
+  # 💡 CHANGE 1: Simplify health check to the root
   healthcheck: '/chatbot/actuator/health'
+  # 💡 CHANGE 2: Add a massive grace period (300 seconds = 5 minutes)
+  # This prevents ECS from killing the task while it's still booting
+  grace_period: 300s
+
+  # 💡 CHANGE 3: Increase health check timeouts so it doesn't fail early
+  interval: 30s
+  timeout: 10s
+  healthy_threshold: 2
+  unhealthy_threshold: 10 # Allow 10 failures before giving up
 
 # 6. Placement (Match your Environment Manifest)
 environments:
