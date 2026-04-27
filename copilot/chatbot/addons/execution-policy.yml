@@ -3,7 +3,6 @@ Parameters:
     Type: String
   Env:
     Type: String
-  # Fix: Name must follow the same Type pattern
   Name:
     Type: String
 
@@ -22,9 +21,10 @@ Resources:
               - "ecr:GetDownloadUrlForLayer"
               - "ecr:BatchGetImage"
             Resource: "*"
-      Roles:
-        - !Ref ExecutionRole
+      # 💡 CHANGE THIS: Use the internal Copilot name for the execution role
+      Roles: [!Ref ExecutionRole]
 
-Outputs:
-  ECRPolicyArn:
-    Value: !Ref ECRRegistryPolicy
+# ⚠️ IF THE ERROR PERSISTS:
+# Temporarily delete the 'Roles' section and the !Ref below.
+# Copilot actually grants ECR permissions by default.
+# You likely do not need this addon at all!

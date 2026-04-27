@@ -1,24 +1,36 @@
 name: chatbot
 type: Load Balanced Web Service
 
-# 💡 ADD THESE TWO LINES HERE (Top Level)
+# 1. Define global task size (Crucial for Sidecars)
 cpu: 512
 memory: 1024
+platform: linux/amd64
 
+# 2. Primary Spring Boot Container
 image:
   build: Dockerfile
   port: 8080
 
-# 💡 ADD THIS LINE TO ENABLE THE ROLE
+# 3. Explicitly enable Task Execution Role
 exec: true
 
+# 4. Sidecar Configuration
 sidecars:
   envoy:
     port: 80
     image:
       build: ./envoy/Dockerfile
 
+# 5. Routing
 http:
   path: '/'
-  target_port: 80
+  target_port: 80 # ALB -> Envoy
   healthcheck: '/chatbot/actuator/health'
+
+# 6. Placement (Match your Environment Manifest)
+environments:
+  prod:
+    count: 1
+    network:
+      vpc:
+        placement: 'public'
