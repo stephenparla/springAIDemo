@@ -1,32 +1,24 @@
 name: chatbot
 type: Load Balanced Web Service
 
-image:
-  build: Dockerfile # Your Spring Boot app in root
-  port: 8080
-
-
-exec: true
-
+# 💡 ADD THESE TWO LINES HERE (Top Level)
 cpu: 512
 memory: 1024
+
+image:
+  build: Dockerfile
+  port: 8080
+
+# 💡 ADD THIS LINE TO ENABLE THE ROLE
+exec: true
 
 sidecars:
   envoy:
     port: 80
     image:
-      build: ./envoy/Dockerfile # Copilot will go here and build it for you!
+      build: ./envoy/Dockerfile
 
 http:
   path: '/'
-  target_port: 80 # ALB sends traffic to Envoy
-  healthcheck: '/chatbot/actuator/health' # Envoy proxies this to Spring Boot
-  success_codes: '200'
-  healthy_threshold: 3
-  unhealthy_threshold: 2
-  interval: 15s
-  timeout: 10s
-
-environments:
-  prod:
-    count: 1
+  target_port: 80
+  healthcheck: '/chatbot/actuator/health'
