@@ -66,8 +66,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(java.util.Arrays.asList(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://theprohub.org",    // 👈 Add your domain
-                "https://theprohub.org" // 👈 Add your domain
+                "https://theprohub.org"
         ));
         configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
