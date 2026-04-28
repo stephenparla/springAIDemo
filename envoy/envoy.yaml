@@ -25,7 +25,7 @@ static_resources:
                           route:
                             cluster: chatbot_service
                             prefix_rewrite: "/actuator/health"
-                        - match: { prefix: "/chatbot" }
+                        - match: { prefix: "/chatbot/" }
                           route:
                             cluster: chatbot_service
                             prefix_rewrite: "/"
