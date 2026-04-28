@@ -28,7 +28,7 @@ static_resources:
                         - match: { prefix: "/chatbot" }
                           route:
                             cluster: chatbot_service
-                            prefix_rewrite: "/"
+                            prefix_rewrite: ""
                             timeout: 60s
 
   clusters:
