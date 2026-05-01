@@ -15,7 +15,7 @@ network:
 cdn: true # Optional: Adds CloudFront for global speed and HTTPS
 http:
   public:
-    domain: theprohub.org
+    domain: skillhub24.com
     # Copilot will automatically try to create an SSL certificate for this domain
 
 
