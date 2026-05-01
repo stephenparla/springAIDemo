@@ -65,7 +65,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(java.util.Arrays.asList(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://skillhub24.com"
+                "https://www.portfolio.bubble-sort.com",
+                "https://portfolio.bubble-sort.com"
         ));
         configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(java.util.Arrays.asList("*"));

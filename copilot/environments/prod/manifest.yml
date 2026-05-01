@@ -15,7 +15,7 @@ network:
 cdn: true # Optional: Adds CloudFront for global speed and HTTPS
 http:
   public:
-    domain: skillhub24.com
+    domain: portfolio.bubble-sort.com
     # Copilot will automatically try to create an SSL certificate for this domain
 
 
@@ -24,8 +24,8 @@ observability:
   container_insights: true # Gives you CPU/RAM graphs in the AWS Console
 
 secrets:
-  ANTHROPIC_API_KEY: /copilot/skillhub24/prod/secrets/ANTHROPIC_API_KEY
-  USER_PASSWORD: /copilot/skillhub24/prod/secrets/USER_PASSWORD
-  USER_NAME: /copilot/skillhub24/prod/secrets/USER_NAME
+  ANTHROPIC_API_KEY: /copilot/portfolio/prod/secrets/ANTHROPIC_API_KEY
+  USER_PASSWORD: /copilot/portfolio/prod/secrets/USER_PASSWORD
+  USER_NAME: /copilot/portfolio/prod/secrets/USER_NAME
 
 
