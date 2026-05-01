@@ -41,7 +41,6 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/api/aichat/ping").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
                 )
@@ -66,7 +65,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(java.util.Arrays.asList(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://theprohub.org"
+                "https://skillhub24.com"
         ));
         configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
