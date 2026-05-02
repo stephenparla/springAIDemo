@@ -45,7 +45,7 @@ environments:
       vpc:
         placement: 'public'
 
-variables:
+secrets:
   ANTHROPIC_API_KEY: /copilot/portfolio/prod/secrets/ANTHROPIC_API_KEY
   USER_PASSWORD: /copilot/portfolio/prod/secrets/USER_PASSWORD
   USER_NAME: /copilot/portfolio/prod/secrets/USER_NAME
