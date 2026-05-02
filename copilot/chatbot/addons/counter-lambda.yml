@@ -136,6 +136,15 @@ Resources:
       Principal: "*"
       Action: "lambda:InvokeFunctionUrl"
       FunctionUrlAuthType: NONE
+  UserCounterInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref UserCounterFunction
+      Principal: "*"
+      Action: "lambda:InvokeFunction"
+      Condition:
+        Bool:
+          "lambda:InvokedViaFunctionUrl": "true"
 
 Outputs:
   # Exposes the URL at the end of deployment to paste in your React app
