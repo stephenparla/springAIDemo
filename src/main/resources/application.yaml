@@ -11,7 +11,7 @@ spring:
   ai:
     openai:
       base-url: https://openrouter.ai/api/v1
-      api-key: ${ANTHROPIC_API_KEY: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}
+      api-key: ${ANTHROPIC_API_KEY:missing-key}
 
       # Specify the model you want to use (e.g., a free one, check the OpenRouter site for options)
       chat:

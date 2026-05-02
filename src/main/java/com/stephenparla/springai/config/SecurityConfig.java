@@ -29,10 +29,10 @@ public class SecurityConfig {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Value("${user.name: guestuser}")
+    @Value("${user.name}")
     private String username;
 
-    @Value("${user.password: guestpassword}")
+    @Value("${user.password}")
     private String password;
 
     @Bean
