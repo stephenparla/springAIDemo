@@ -14,7 +14,7 @@ static_resources:
                 access_log:
                   - name: envoy.access_loggers.stdout
                     typed_config:
-                      "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog"
+                      "@type": "type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog"
                       log_format: # 🌟 FIXED: Added the required log_format wrapper
                         json_format:
                           time: "%START_TIME%"
