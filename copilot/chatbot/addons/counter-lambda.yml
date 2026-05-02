@@ -84,8 +84,8 @@ Resources:
           
               incoming_origin = event.get('headers', {}).get('origin', '')
               allowed_origins = [
-                  'https://bubble-sort.com',
-                  'https://bubble-sort.com'
+                  'https://www.portfolio.bubble-sort.com',
+                  'http://localhost:5173'
               ]
               response_origin = incoming_origin if incoming_origin in allowed_origins else allowed_origins
 
