@@ -46,7 +46,7 @@ environments:
         placement: 'public'
 
 secrets:
-  ANTHROPIC_API_KEY: /copilot/portfolio-backend/prod/secrets/ANTHROPIC_API_KEY
-  USER_PASSWORD: /copilot/portfolio-backend/prod/secrets/USER_PASSWORD
-  USER_NAME: /copilot/portfolio-backend/prod/secrets/USER_NAME
+  ANTHROPIC_API_KEY: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/ANTHROPIC_API_KEY
+  USER_PASSWORD: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/USER_PASSWORD
+  USER_NAME: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/USER_NAME
 
