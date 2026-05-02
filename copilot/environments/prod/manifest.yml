@@ -23,9 +23,6 @@ http:
 observability:
   container_insights: true # Gives you CPU/RAM graphs in the AWS Console
 
-secrets:
-  ANTHROPIC_API_KEY: /copilot/portfolio/prod/secrets/ANTHROPIC_API_KEY
-  USER_PASSWORD: /copilot/portfolio/prod/secrets/USER_PASSWORD
-  USER_NAME: /copilot/portfolio/prod/secrets/USER_NAME
+
 
 
