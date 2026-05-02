@@ -23,7 +23,7 @@ sidecars:
 
 # 5. Routing
 http:
-  path: '/'
+  path: '/api'
   target_port: 8081
   # 💡 CHANGE 1: Simplify health check to the root
   healthcheck: '/chatbot/actuator/health'
