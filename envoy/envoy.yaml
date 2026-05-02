@@ -30,11 +30,7 @@ static_resources:
                     - name: backend
                       domains: ["*"]
                       routes:
-                        - match: { path: "/api/chatbot/actuator/health" }
-                          route:
-                            cluster: chatbot_service
-                            prefix_rewrite: "/actuator/health"
-                        - match: { path: "/chatbot/actuator/health" }
+                        - match: { path: "/actuator/health" }
                           route:
                             cluster: chatbot_service
                             prefix_rewrite: "/actuator/health"
