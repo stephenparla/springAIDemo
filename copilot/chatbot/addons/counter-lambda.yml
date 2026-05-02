@@ -29,9 +29,9 @@ Resources:
               - Effect: Allow
                 Action:
                   - logs:StartQuery
-                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/copilot/portfolio-prod-chatbot:*"
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/copilot/portfolio-prod-chatbot"
 
-              # 2. Statement for GetQueryResults (Requires wildcard '*' resource)
+              # Statement for GetQueryResults (Requires wildcard '*' resource)
               - Effect: Allow
                 Action:
                   - logs:GetQueryResults
@@ -65,11 +65,11 @@ Resources:
           
               log_group = '/copilot/portfolio-prod-chatbot'
           
-              # Hardcode the start time to May 1st, 2026 at midnight UTC
-              start_time = int(datetime(2026, 5, 1).timestamp())
+              # 🌟 FIXED: Explicitly set hardcoded start time to UTC
+              start_time = int(datetime(2026, 5, 1, tzinfo=timezone.utc).timestamp())
           
-              # Pull the ending time as the exact current moment
-              end_time = int(datetime.now().timestamp())
+              # 🌟 FIXED: Pull the current moment explicitly in UTC to match AWS execution
+              end_time = int(datetime.now(timezone.utc).timestamp())
           
               start_query_response = logs_client.start_query(
                   logGroupName=log_group,
@@ -92,14 +92,27 @@ Resources:
                           if col['field'] == 'unique_guests':
                               total_users = int(col['value'])
           
+              # Check which domain the request is coming from
+              incoming_origin = event.get('headers', {}).get('origin', '')
+          
+              # List of your allowed domains
+              allowed_origins = [
+                'https://portfolio.bubble-sort.com',
+                'https://www.portfolio.bubble-sort.com'
+              ]
+          
+              # If the caller is on our list, permit them specifically
+              # Otherwise, default to your main subdomain
+              response_origin = incoming_origin if incoming_origin in allowed_origins else allowed_origins[0]
+
               return {
-                  'statusCode': 200,
-                  'headers': {
-                      'Access-Control-Allow-Origin': 'https://bubble-sort.com',
-                      'Access-Control-Allow-Methods': 'GET,OPTIONS',
-                      'Content-Type': 'application/json'
-                  },
-                  'body': json.dumps({'totalUsers': total_users})
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': response_origin,
+                    'Access-Control-Allow-Methods': 'GET,OPTIONS',
+                    'Content-Type': 'application/json'
+                },
+                'body': json.dumps({'totalUsers': total_users})
               }
 
   # 3. Create a public HTTPS endpoint for the function
@@ -110,7 +123,8 @@ Resources:
       TargetFunctionArn: !Ref UserCounterFunction
       Cors:
         AllowOrigins:
-          - "https://bubble-sort.com"
+          - "https://portfolio.bubble-sort.com"
+          - "https://www.portfolio.bubble-sort.com"
         AllowMethods:
           - "GET"
 
@@ -122,6 +136,15 @@ Resources:
       Principal: "*"
       Action: "lambda:InvokeFunctionUrl"
       FunctionUrlAuthType: NONE
+  UserCounterInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref UserCounterFunction
+      Principal: "*"
+      Action: "lambda:InvokeFunction"
+      Condition:
+        Bool:
+          "lambda:InvokedViaFunctionUrl": "true"
 
 Outputs:
   # Exposes the URL at the end of deployment to paste in your React app
