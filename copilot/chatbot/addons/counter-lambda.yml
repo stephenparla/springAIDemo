@@ -1,0 +1,125 @@
+Parameters:
+  App:
+    Type: String
+  Env:
+    Type: String
+  Name:
+    Type: String
+
+Resources:
+  # 1. IAM Role so Lambda can read your Copilot Fargate logs
+  LambdaQueryRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ://amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CloudWatchQueryAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:StartQuery
+                  - logs:GetQueryResults
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/copilot/portfolio-prod-chatbot:*"
+
+  # 2. Python Lambda function that counts unique IPs
+  UserCounterFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: "index.lambda_handler"
+      Runtime: "python3.12"
+      Role: !GetAtt LambdaQueryRole.Arn
+      Timeout: 15
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          import time
+          from datetime import datetime, timedelta
+
+          logs_client = boto3.client('logs')
+
+          def lambda_handler(event, context):
+              # Future-proof query looking for your designated paths
+              query = """
+              fields @timestamp, ip 
+
+              | filter path like '/chatbot' or path like '/bedrock' or path like '/gaming'
+              | filter path not like /\\.(css|js|png|jpg|jpeg|ico|svg)/
+              | stats count_distinct(ip) as unique_guests
+              """
+          
+              log_group = '/copilot/portfolio-prod-chatbot'
+          
+              # Hardcode the start time to May 1st, 2026 at midnight UTC
+              start_time = int(datetime(2026, 5, 1).timestamp())
+          
+              # Pull the ending time as the exact current moment
+              end_time = int(datetime.now().timestamp())
+          
+              start_query_response = logs_client.start_query(
+                  logGroupName=log_group,
+                  startTime=start_time,
+                  endTime=end_time,
+                  queryString=query
+              )
+          
+              query_id = start_query_response['queryId']
+          
+              response = None
+              while response is None or response['status'] == 'Running':
+                  time.sleep(0.5)
+                  response = logs_client.get_query_results(queryId=query_id)
+          
+              total_users = 0
+              if response['results']:
+                  for row in response['results']:
+                      for col in row:
+                          if col['field'] == 'unique_guests':
+                              total_users = int(col['value'])
+          
+              return {
+                  'statusCode': 200,
+                  'headers': {
+                      'Access-Control-Allow-Origin': 'https://bubble-sort.com',
+                      'Access-Control-Allow-Methods': 'GET,OPTIONS',
+                      'Content-Type': 'application/json'
+                  },
+                  'body': json.dumps({'totalUsers': total_users})
+              }
+
+  # 3. Create a public HTTPS endpoint for the function
+  UserCounterUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      AuthType: NONE
+      TargetFunctionArn: !Ref UserCounterFunction
+      Cors:
+        AllowOrigins:
+          - "https://bubble-sort.com"
+        AllowMethods:
+          - "GET"
+
+  # 4. Grant permission for the internet to reach that URL
+  UserCounterUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref UserCounterFunction
+      Principal: "*"
+      Action: "lambda:InvokeFunctionUrl"
+      FunctionUrlAuthType: NONE
+
+Outputs:
+  # Exposes the URL at the end of deployment to paste in your React app
+  CounterEndpointUrl:
+    Description: "The public URL to fetch the user count"
+    Value: !GetAtt UserCounterUrl.FunctionUrl
