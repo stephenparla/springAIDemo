@@ -58,7 +58,7 @@ Resources:
               | stats count_distinct(ip) as unique_guests
               """
           
-              log_group = '/copilot/portfolio-prod-chatbot'
+              log_group = '/copilot/portfolio-backend-prod-chatbot'
               start_time = int(datetime(2026, 5, 1, tzinfo=timezone.utc).timestamp())
               end_time = int(datetime.now(timezone.utc).timestamp())
           
