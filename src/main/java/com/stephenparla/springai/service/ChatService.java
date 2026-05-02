@@ -29,7 +29,7 @@ public class ChatService {
 
         // Enforce the word limit per session
         int currentCount = sessionWordCounts.getOrDefault(sessionId, 0);
-        if (currentCount >= 50) {
+        if (currentCount >= 30) {
             return "Your limit has reached";
         }
 
