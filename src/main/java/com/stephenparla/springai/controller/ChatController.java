@@ -15,11 +15,11 @@ public class ChatController {
     ChatService chatService;
 
     @PostMapping("/prompt")
-    public ChatResponse prompt(@RequestBody String userMessage) {
+    public ChatResponse prompt(@RequestHeader("X-Session-ID") String sessionId, @RequestBody String userMessage) {
         ChatResponse response = new ChatResponse();
         try {
             log.info("inside chatbot!!");
-            String message = chatService.chatCompletion(userMessage);
+            String message = chatService.chatCompletion(sessionId, userMessage);
             response.setMessage(message);
             response.setStatusCode(200);
             log.info("chatbot request success");
