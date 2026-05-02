@@ -11,5 +11,7 @@ RUN apt-get update && apt-get install -y libcap2-bin && \
 # Switch back to the non-root 'envoy' user for security
 USER envoy
 
+EXPOSE 8081
+
 ENTRYPOINT ["/usr/local/bin/envoy"]
 CMD ["-c", "/etc/envoy/envoy.yaml"]
