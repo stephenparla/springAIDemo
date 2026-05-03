@@ -101,8 +101,6 @@ Resources:
                   return {
                       'statusCode': 200,
                       'headers': {
-                          'Access-Control-Allow-Origin': response_origin,
-                          'Access-Control-Allow-Methods': 'GET,OPTIONS',
                           'Content-Type': 'application/json'
                       },
                       'body': json.dumps({'totalUsers': total_users})
