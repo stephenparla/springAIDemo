@@ -49,56 +49,71 @@ Resources:
           logs_client = boto3.client('logs')
 
           def lambda_handler(event, context):
-          # 1. Using JSON auto-discovery fields and pulling the real user IP
-          query = """
-          fields @timestamp
+              try:
+                  # 1. Using JSON auto-discovery fields and pulling the real user IP
+                  query = """
+                  fields @timestamp
           
           
-          | filter path = '/api/aichat/ping'
-          | parse ip /(?<real_user_ip>[^,]+)/
-          | stats count_distinct(real_user_ip) as unique_guests
-          """
+                  | filter path = '/api/aichat/ping'
+                  | parse ip /(?<real_user_ip>[^,]+)/
+                  | stats count_distinct(real_user_ip) as unique_guests
+                  """
           
-          log_group = '/copilot/portfolio-backend-prod-chatbot'
+                  log_group = '/copilot/portfolio-backend-prod-chatbot'
           
-          # 2. Hardcoded to start on May 1st, 2026 UTC
-          start_time = int(datetime(2026, 5, 1, tzinfo=timezone.utc).timestamp())
-          end_time = int(datetime.now(timezone.utc).timestamp())
+                  # 2. Hardcoded to start on May 1st, 2026 UTC
+                  start_time = int(datetime(2026, 5, 1, tzinfo=timezone.utc).timestamp())
           
-          start_query_response = logs_client.start_query(
-           logGroupName=log_group,
-           startTime=start_time,
-           endTime=end_time,
-           queryString=query
-          )
+                  # Subtracting 10 seconds to account for slight server clock drift
+                  end_time = int(datetime.now(timezone.utc).timestamp()) - 10
           
-          query_id = start_query_response['queryId']
-          response = None
-          while response is None or response['status'] in ['Running', 'Scheduled']:
-           time.sleep(0.5)
-           response = logs_client.get_query_results(queryId=query_id)
+                  start_query_response = logs_client.start_query(
+                      logGroupName=log_group,
+                      startTime=start_time,
+                      endTime=end_time,
+                      queryString=query
+                  )
           
-          total_users = 0
-          if response['results']:
-           for row in response['results']:
-               for col in row:
-                   if col['field'] == 'unique_guests':
-                       total_users = int(col['value'])
+                  query_id = start_query_response['queryId']
+                  response = None
+                  while response is None or response['status'] in ['Running', 'Scheduled']:
+                      time.sleep(0.5)
+                      response = logs_client.get_query_results(queryId=query_id)
           
-          incoming_origin = event.get('headers', {}).get('origin', '')
-          allowed_origins = [
-           'https://portfolio.bubble-sort.com',
-           'https://bubble-sort.com',
-           'http://localhost:5173'
-          ]
-          response_origin = incoming_origin if incoming_origin in allowed_origins else allowed_origins
+                  total_users = 0
+                  if response.get('results'):
+                      for row in response['results']:
+                          for col in row:
+                              if col['field'] == 'unique_guests':
+                                  total_users = int(col['value'])
           
-          return {
-           'statusCode': 200,
-           'headers': {
-               'Access-Control-Allow-Origin': response_origin,
-               'Access-Control-Allow-Methods': 'GET,OPTIONS',
-               'Content-Type': 'application/json'
-           },
-           'body': json.dumps({'totalUsers': total_users})
-          }
+                  # Safely extract headers for CORS handling
+                  incoming_origin = event.get('headers', {}).get('origin', '') if event and 'headers' in event else ''
+                  allowed_origins = [
+                      'https://www.portfolio.bubble-sort.com',
+                      'https://portfolio.bubble-sort.com',
+                      'https://bubble-sort.com',
+                      'http://localhost:5173'
+                  ]
+                  response_origin = incoming_origin if incoming_origin in allowed_origins else 'https://portfolio.bubble-sort.com'
+          
+                  return {
+                      'statusCode': 200,
+                      'headers': {
+                          'Access-Control-Allow-Origin': response_origin,
+                          'Access-Control-Allow-Methods': 'GET,OPTIONS',
+                          'Content-Type': 'application/json'
+                      },
+                      'body': json.dumps({'totalUsers': total_users})
+                  }
+              except Exception as e:
+                  # Catch-all to expose the exact error if something else breaks
+                  return {
+                      'statusCode': 500,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Content-Type': 'application/json'
+                      },
+                      'body': json.dumps({'error': str(e)})
+                  }
