@@ -7,7 +7,6 @@ Parameters:
     Type: String
 
 Resources:
-  # 1. IAM Role with DynamoDB Access
   LambdaCounterRole:
     Type: AWS::IAM::Role
     Properties:
@@ -16,29 +15,26 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: lambda.amazonaws.com
+              Service: ://amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        - PolicyName: DynamoDBIncrementAccess
+        - PolicyName: DynamoDBAccess
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
                   - dynamodb:UpdateItem
-                # Targets the table created by your Copilot addon
                 Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${App}-${Env}-${Name}-UsersTable"
 
-  # 2. The Python Lambda
   UserCounterFunction:
     Type: AWS::Lambda::Function
     Properties:
       Handler: "index.lambda_handler"
       Runtime: "python3.12"
       Role: !GetAtt LambdaCounterRole.Arn
-      Timeout: 10
       Environment:
         Variables:
           TABLE_NAME: !Sub "${App}-${Env}-${Name}-UsersTable"
@@ -58,25 +54,19 @@ Resources:
                       UpdateExpression="ADD visit_count :inc",
                       ExpressionAttributeValues={':inc': 1}
                   )
-                  return {
-                      'statusCode': 200,
-                      'body': json.dumps({'status': 'incremented'})
-                  }
+                  return {'statusCode': 200, 'body': '{"status":"ok"}'}
               except Exception as e:
-                  print(f"Error: {e}")
-                  return {
-                      'statusCode': 500,
-                      'body': json.dumps({'error': str(e)})
-                  }
+                  print(e)
+                  return {'statusCode': 500, 'body': str(e)}
 
-  # 3. Public URL for Envoy to hit
+  # 🌟 FIXED: Added DependsOn to prevent the 'failed to create' error
   UserCounterFunctionUrl:
     Type: AWS::Lambda::Url
+    DependsOn: UserCounterFunction
     Properties:
       TargetFunctionArn: !Ref UserCounterFunction
-      AuthType: NONE # Set to AWS_IAM if you use the signing filter in Envoy
+      AuthType: NONE
 
-  # 4. Permission for the URL to be public
   UserCounterFunctionUrlPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -86,6 +76,6 @@ Resources:
       FunctionUrlAuthType: NONE
 
 Outputs:
-  LambdaUrl:
-    Description: "The URL to put in your Envoy config"
+  # This output will show up in your terminal after 'copilot svc deploy'
+  CounterLambdaUrl:
     Value: !GetAtt UserCounterFunctionUrl.FunctionUrl
