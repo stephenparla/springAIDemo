@@ -1,21 +1,24 @@
 Parameters:
-  App: { Type: String }
-  Env: { Type: String }
-  Name: { Type: String }
+  App:
+    Type: String
+  Env:
+    Type: String
+  Name:
+    Type: String
 
 Resources:
-  # 1. THE TABLE
   UsersTable:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: !Sub ${App}-${Env}-${Name}-UsersTable
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
-        - { AttributeName: StatId, AttributeType: S }
+        - AttributeName: StatId
+          AttributeType: S
       KeySchema:
-        - { AttributeName: StatId, KeyType: HASH }
+        - AttributeName: StatId
+          KeyType: HASH
 
-  # 2. THE ROLE
   LambdaCounterRole:
     Type: AWS::IAM::Role
     Properties:
@@ -23,7 +26,8 @@ Resources:
         Version: "2012-10-17"
         Statement:
           - Effect: Allow
-            Principal: { Service: ://amazonaws.com }
+            Principal:
+              Service: ://amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
@@ -33,10 +37,10 @@ Resources:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
-                Action: [ "dynamodb:UpdateItem" ]
-                Resource: !GetAtt UsersTable.Arn # 🌟 Direct reference is safer
+                Action:
+                  - dynamodb:UpdateItem
+                Resource: !GetAtt UsersTable.Arn
 
-  # 3. THE FUNCTION
   UserCounterFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -49,9 +53,9 @@ Resources:
       Code:
         ZipFile: |
           import boto3, os, json
-          table = boto3.resource('dynamodb').Table(os.environ['TABLE_NAME'])
           def lambda_handler(event, context):
               try:
+                  table = boto3.resource('dynamodb').Table(os.environ['TABLE_NAME'])
                   table.update_item(
                       Key={'StatId': 'total_unique_visitors'},
                       UpdateExpression="ADD visit_count :inc",
@@ -61,7 +65,6 @@ Resources:
               except Exception as e:
                   return {'statusCode': 500, 'body': str(e)}
 
-  # 4. THE URL
   UserCounterFunctionUrl:
     Type: AWS::Lambda::Url
     DependsOn: UserCounterFunction
