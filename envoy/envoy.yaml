@@ -2,28 +2,51 @@ static_resources:
   listeners:
     - name: listener_0
       address:
-        socket_address:
-          address: 0.0.0.0
-          port_value: 8081
+        socket_address: { address: 0.0.0.0, port_value: 8081 }
       filter_chains:
         - filters:
             - name: envoy.filters.network.http_connection_manager
               typed_config:
-                "@type": "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager"
+                "@type": ://googleapis.com
                 stat_prefix: ingress_http
-                access_log:
-                  - name: envoy.access_loggers.stdout
-                    typed_config:
-                      "@type": "type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog"
-                      log_format: # 🌟 FIXED: Added the required log_format wrapper
-                        json_format:
-                          time: "%START_TIME%"
-                          ip: "%REQ(X-FORWARDED-FOR)%"
-                          path: "%REQ(:PATH)%"
                 http_filters:
+                  # 1. Lua Filter for Unique Counter
+                  - name: envoy.filters.http.lua
+                    typed_config:
+                      "@type": ://googleapis.com
+                      inline_code: |
+                        function envoy_on_request(request_handle)
+                          local cookie = request_handle:headers():get("cookie")
+                          local is_returning = false
+                          if cookie and string.find(cookie, "has_visited=true") then
+                            is_returning = true
+                          end
+
+                          if not is_returning then
+                            request_handle:httpCall(
+                              "lambda_counter_cluster",
+                              {
+                                [":method"] = "POST",
+                                [":path"] = "/",
+                                [":authority"] = "evjnjxb5s7z5jljtk3fhre7orm0aouum.lambda-url.us-east-1.on.aws",
+                                ["content-type"] = "application/json"
+                              },
+                              '{}',
+                              500
+                            )
+                            request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "set_cookie", true)
+                          end
+                        end
+
+                        function envoy_on_response(response_handle)
+                          local meta = response_handle:streamInfo():dynamicMetadata():get("envoy.filters.http.lua")
+                          if meta and meta["set_cookie"] then
+                            response_handle:headers():add("set-cookie", "has_visited=true; Max-Age=86400; Path=/; HttpOnly; SameSite=Lax")
+                          end
+                        end
                   - name: envoy.filters.http.router
                     typed_config:
-                      "@type": "type.googleapis.com/envoy.extensions.filters.http.router.v3.Router"
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
                 route_config:
                   name: local_route
                   virtual_hosts:
@@ -31,10 +54,7 @@ static_resources:
                       domains: ["*"]
                       routes:
                         - match: { path: "/actuator/health" }
-                          direct_response:
-                            status: 200
-                            body:
-                              inline_string: "{\"status\":\"UP\"}"
+                          direct_response: { status: 200, body: { inline_string: "{\"status\":\"UP\"}" } }
                         - match: { prefix: "/api/chatbot/" }
                           route:
                             cluster: chatbot_service
@@ -52,6 +72,23 @@ static_resources:
           - lb_endpoints:
               - endpoint:
                   address:
+                    socket_address: { address: 127.0.0.1, port_value: 8080 }
+
+    - name: lambda_counter_cluster
+      connect_timeout: 0.25s
+      type: LOGICAL_DNS
+      dns_lookup_family: V4_ONLY
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: lambda_counter_cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
                     socket_address:
-                      address: 127.0.0.1
-                      port_value: 8080
+                      address: evjnjxb5s7z5jljtk3fhre7orm0aouum.lambda-url.us-east-1.on.aws
+                      port_value: 443
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": ://googleapis.com
