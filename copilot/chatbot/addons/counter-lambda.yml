@@ -7,8 +7,8 @@ Parameters:
     Type: String
 
 Resources:
-  # 1. Fixed IAM Role to bypass CloudFormation errors
-  LambdaQueryRole:
+  # 1. IAM Role with DynamoDB Access
+  LambdaCounterRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -21,97 +21,71 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        - PolicyName: CloudWatchQueryAccess
+        - PolicyName: DynamoDBIncrementAccess
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
-                  - logs:StartQuery
-                  - logs:GetQueryResults
-                Resource: "*"
+                  - dynamodb:UpdateItem
+                # Targets the table created by your Copilot addon
+                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${App}-${Env}-${Name}-UsersTable"
 
-  # 2. Python Lambda function that counts unique IPs
+  # 2. The Python Lambda
   UserCounterFunction:
     Type: AWS::Lambda::Function
     Properties:
       Handler: "index.lambda_handler"
       Runtime: "python3.12"
-      Role: !GetAtt LambdaQueryRole.Arn
-      Timeout: 15
+      Role: !GetAtt LambdaCounterRole.Arn
+      Timeout: 10
+      Environment:
+        Variables:
+          TABLE_NAME: !Sub "${App}-${Env}-${Name}-UsersTable"
       Code:
         ZipFile: |
           import boto3
+          import os
           import json
-          import time
-          from datetime import datetime, timezone
 
-          logs_client = boto3.client('logs')
+          dynamodb = boto3.resource('dynamodb')
+          table = dynamodb.Table(os.environ['TABLE_NAME'])
 
           def lambda_handler(event, context):
               try:
-                  # 1. Using JSON auto-discovery fields and pulling the real user IP
-                  query = """
-                  fields @timestamp
-          
-          
-                  | filter path = '/api/aichat/ping'
-                  | parse ip /(?<real_user_ip>[^,]+)/
-                  | stats count_distinct(real_user_ip) as unique_guests
-                  """
-          
-                  log_group = '/copilot/portfolio-backend-prod-chatbot'
-          
-                  # 2. Hardcoded to start on May 1st, 2026 UTC
-                  start_time = int(datetime(2026, 5, 1, tzinfo=timezone.utc).timestamp())
-          
-                  # Subtracting 10 seconds to account for slight server clock drift
-                  end_time = int(datetime.now(timezone.utc).timestamp()) - 10
-          
-                  start_query_response = logs_client.start_query(
-                      logGroupName=log_group,
-                      startTime=start_time,
-                      endTime=end_time,
-                      queryString=query
+                  table.update_item(
+                      Key={'StatId': 'total_unique_visitors'},
+                      UpdateExpression="ADD visit_count :inc",
+                      ExpressionAttributeValues={':inc': 1}
                   )
-          
-                  query_id = start_query_response['queryId']
-                  response = None
-                  while response is None or response['status'] in ['Running', 'Scheduled']:
-                      time.sleep(0.5)
-                      response = logs_client.get_query_results(queryId=query_id)
-          
-                  total_users = 0
-                  if response.get('results'):
-                      for row in response['results']:
-                          for col in row:
-                              if col['field'] == 'unique_guests':
-                                  total_users = int(col['value'])
-          
-                  # Safely extract headers for CORS handling
-                  incoming_origin = event.get('headers', {}).get('origin', '') if event and 'headers' in event else ''
-                  allowed_origins = [
-                      'https://www.portfolio.bubble-sort.com',
-                      'https://portfolio.bubble-sort.com',
-                      'https://bubble-sort.com',
-                      'http://localhost:5173'
-                  ]
-                  response_origin = incoming_origin if incoming_origin in allowed_origins else 'https://portfolio.bubble-sort.com'
-          
                   return {
                       'statusCode': 200,
-                      'headers': {
-                          'Content-Type': 'application/json'
-                      },
-                      'body': json.dumps({'totalUsers': total_users})
+                      'body': json.dumps({'status': 'incremented'})
                   }
               except Exception as e:
-                  # Catch-all to expose the exact error if something else breaks
+                  print(f"Error: {e}")
                   return {
                       'statusCode': 500,
-                      'headers': {
-                          'Access-Control-Allow-Origin': '*',
-                          'Content-Type': 'application/json'
-                      },
                       'body': json.dumps({'error': str(e)})
                   }
+
+  # 3. Public URL for Envoy to hit
+  UserCounterFunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !Ref UserCounterFunction
+      AuthType: NONE # Set to AWS_IAM if you use the signing filter in Envoy
+
+  # 4. Permission for the URL to be public
+  UserCounterFunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref UserCounterFunction
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
+Outputs:
+  LambdaUrl:
+    Description: "The URL to put in your Envoy config"
+    Value: !GetAtt UserCounterFunctionUrl.FunctionUrl
