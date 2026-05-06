@@ -1,12 +1,21 @@
 Parameters:
-  App:
-    Type: String
-  Env:
-    Type: String
-  Name:
-    Type: String
+  App: { Type: String }
+  Env: { Type: String }
+  Name: { Type: String }
 
 Resources:
+  # 1. THE TABLE
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${App}-${Env}-${Name}-UsersTable
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: StatId, AttributeType: S }
+      KeySchema:
+        - { AttributeName: StatId, KeyType: HASH }
+
+  # 2. THE ROLE
   LambdaCounterRole:
     Type: AWS::IAM::Role
     Properties:
@@ -14,8 +23,7 @@ Resources:
         Version: "2012-10-17"
         Statement:
           - Effect: Allow
-            Principal:
-              Service: ://amazonaws.com
+            Principal: { Service: ://amazonaws.com }
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
@@ -25,10 +33,10 @@ Resources:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
-                Action:
-                  - dynamodb:UpdateItem
-                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${App}-${Env}-${Name}-UsersTable"
+                Action: [ "dynamodb:UpdateItem" ]
+                Resource: !GetAtt UsersTable.Arn # 🌟 Direct reference is safer
 
+  # 3. THE FUNCTION
   UserCounterFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -37,16 +45,11 @@ Resources:
       Role: !GetAtt LambdaCounterRole.Arn
       Environment:
         Variables:
-          TABLE_NAME: !Sub "${App}-${Env}-${Name}-UsersTable"
+          TABLE_NAME: !Ref UsersTable
       Code:
         ZipFile: |
-          import boto3
-          import os
-          import json
-
-          dynamodb = boto3.resource('dynamodb')
-          table = dynamodb.Table(os.environ['TABLE_NAME'])
-
+          import boto3, os, json
+          table = boto3.resource('dynamodb').Table(os.environ['TABLE_NAME'])
           def lambda_handler(event, context):
               try:
                   table.update_item(
@@ -56,10 +59,9 @@ Resources:
                   )
                   return {'statusCode': 200, 'body': '{"status":"ok"}'}
               except Exception as e:
-                  print(e)
                   return {'statusCode': 500, 'body': str(e)}
 
-  # 🌟 FIXED: Added DependsOn to prevent the 'failed to create' error
+  # 4. THE URL
   UserCounterFunctionUrl:
     Type: AWS::Lambda::Url
     DependsOn: UserCounterFunction
@@ -76,6 +78,5 @@ Resources:
       FunctionUrlAuthType: NONE
 
 Outputs:
-  # This output will show up in your terminal after 'copilot svc deploy'
   CounterLambdaUrl:
     Value: !GetAtt UserCounterFunctionUrl.FunctionUrl
