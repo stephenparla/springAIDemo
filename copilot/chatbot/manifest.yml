@@ -9,7 +9,6 @@ platform: linux/amd64
 # 2. Primary Spring Boot Container
 image:
   build: Dockerfile
-  port: 8080
 
 # 3. Explicitly enable Task Execution Role
 exec: true
@@ -23,7 +22,7 @@ sidecars:
 
 # 5. Routing
 http:
-  path: '/api'
+  path: '/'
   target_port: 8081
   # 💡 CHANGE 1: Simplify health check to the root
   healthcheck: '/actuator/health'
