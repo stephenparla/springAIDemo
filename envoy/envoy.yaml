@@ -60,6 +60,13 @@ static_resources:
                             cluster: chatbot_service
                             prefix_rewrite: "/"
                             timeout: 60s
+                        - match: { path: "/api/visitor-count" }
+                          route:
+                            cluster: lambda_counter_cluster
+                            # Lambda URLs usually require the path to be "/" or a specific function name
+                            prefix_rewrite: "/"
+                            # Important: This ensures the Host header matches what Lambda expects
+                            host_rewrite_literal: d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws
 
   clusters:
     - name: chatbot_service
@@ -92,3 +99,8 @@ static_resources:
         name: envoy.transport_sockets.tls
         typed_config:
           "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+          common_tls_context:
+            validation_context:
+              trusted_ca:
+                filename: /etc/ssl/certs/ca-certificates.crt # Location varies by OS
+            sni: d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws
