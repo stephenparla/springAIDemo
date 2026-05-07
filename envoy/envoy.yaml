@@ -99,8 +99,9 @@ static_resources:
         name: envoy.transport_sockets.tls
         typed_config:
           "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+          sni: d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws
           common_tls_context:
             validation_context:
               trusted_ca:
                 filename: /etc/ssl/certs/ca-certificates.crt # Location varies by OS
-            sni: d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws
+
