@@ -7,13 +7,13 @@ static_resources:
         - filters:
             - name: envoy.filters.network.http_connection_manager
               typed_config:
-                "@type": ://googleapis.com
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
                 stat_prefix: ingress_http
                 http_filters:
                   # 1. Lua Filter for Unique Counter
                   - name: envoy.filters.http.lua
                     typed_config:
-                      "@type": ://googleapis.com
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
                       inline_code: |
                         function envoy_on_request(request_handle)
                           local cookie = request_handle:headers():get("cookie")
@@ -91,4 +91,4 @@ static_resources:
       transport_socket:
         name: envoy.transport_sockets.tls
         typed_config:
-          "@type": ://googleapis.com
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
