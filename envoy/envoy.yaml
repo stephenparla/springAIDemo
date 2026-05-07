@@ -10,37 +10,41 @@ static_resources:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
                 stat_prefix: ingress_http
                 http_filters:
-                  # 1. Lua Filter for Unique Counter
+                  # 1. Lua Filter for Unique Counter on successful Ping
                   - name: envoy.filters.http.lua
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
                       inline_code: |
                         function envoy_on_request(request_handle)
-                          local cookie = request_handle:headers():get("cookie")
-                          local is_returning = false
-                          if cookie and string.find(cookie, "has_visited=true") then
-                            is_returning = true
-                          end
+                          -- Capture the path to use in the response phase
+                          local path = request_handle:headers():get(":path")
+                          request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "path", path)
+                        end
 
-                          if not is_returning then
-                            request_handle:httpCall(
+                        function envoy_on_response(response_handle)
+                          local path_meta = response_handle:streamInfo():dynamicMetadata():get("envoy.filters.http.lua")
+                          if not path_meta then return end
+                        
+                          local path = path_meta["path"]
+                          local status = response_handle:headers():get(":status")
+                          local cookie = response_handle:headers():get("cookie") or ""
+                        
+                          -- Logic: Match ping path, success status, and no existing cookie
+                          if string.find(path, "/api/aichat/ping") and status == "200" and not string.find(cookie, "has_visited=true") then
+                            -- Trigger Lambda Increment
+                            response_handle:httpCall(
                               "lambda_counter_cluster",
                               {
                                 [":method"] = "POST",
                                 [":path"] = "/",
                                 [":authority"] = "d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws",
-                                ["content-type"] = "application/json"
+                                ["content-type"] = "application/json",
+                                ["content-length"] = "2"
                               },
                               '{}',
                               500
                             )
-                            request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "set_cookie", true)
-                          end
-                        end
-
-                        function envoy_on_response(response_handle)
-                          local meta = response_handle:streamInfo():dynamicMetadata():get("envoy.filters.http.lua")
-                          if meta and meta["set_cookie"] then
+                            -- Set cookie to prevent re-counting
                             response_handle:headers():add("set-cookie", "has_visited=true; Max-Age=86400; Path=/; HttpOnly; SameSite=Lax")
                           end
                         end
@@ -63,9 +67,7 @@ static_resources:
                         - match: { path: "/api/visitor-count" }
                           route:
                             cluster: lambda_counter_cluster
-                            # Lambda URLs usually require the path to be "/" or a specific function name
                             prefix_rewrite: "/"
-                            # Important: This ensures the Host header matches what Lambda expects
                             host_rewrite_literal: d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws
 
   clusters:
@@ -103,5 +105,4 @@ static_resources:
           common_tls_context:
             validation_context:
               trusted_ca:
-                filename: /etc/ssl/certs/ca-certificates.crt # Location varies by OS
-
+                filename: /etc/ssl/certs/ca-certificates.crt
