@@ -30,7 +30,7 @@ static_resources:
                           local cookie = response_handle:headers():get("cookie") or ""
                         
                           -- Logic: Match ping path, success status, and no existing cookie
-                          if string.find(path, "/api/aichat/ping") and status == "200" and not string.find(cookie, "has_visited=true") then
+                          if string.find(path, "ping") and status == "200" and not string.find(cookie, "has_visited=true") then
                             -- Trigger Lambda Increment
                             response_handle:httpCall(
                               "lambda_counter_cluster",
