@@ -86,7 +86,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: evjnjxb5s7z5jljtk3fhre7orm0aouum.lambda-url.us-east-1.on.aws
+                      address: d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws
                       port_value: 443
       transport_socket:
         name: envoy.transport_sockets.tls
