@@ -28,7 +28,7 @@ static_resources:
                               {
                                 [":method"] = "POST",
                                 [":path"] = "/",
-                                [":authority"] = "evjnjxb5s7z5jljtk3fhre7orm0aouum.lambda-url.us-east-1.on.aws",
+                                [":authority"] = "d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws",
                                 ["content-type"] = "application/json"
                               },
                               '{}',
