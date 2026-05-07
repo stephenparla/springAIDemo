@@ -19,6 +19,7 @@ sidecars:
     port: 8081
     image:
       build: ./envoy/Dockerfile
+      port: 8080
 
 # 5. Routing
 http:
