@@ -39,6 +39,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - dynamodb:UpdateItem
+                  - dynamodb:GetItem
                 Resource: !GetAtt UsersTable.Arn
 
   UserCounterFunction:
@@ -54,16 +55,29 @@ Resources:
         ZipFile: |
           import boto3, os, json
           def lambda_handler(event, context):
-              try:
-                  table = boto3.resource('dynamodb').Table(os.environ['TABLE_NAME'])
+            try:
+              table = boto3.resource('dynamodb').Table(os.environ['TABLE_NAME'])
+              method = event.get('requestContext', {}).get('http', {}).get('method', 'GET')
+    
+              if method == 'GET':
+                  response = table.get_item(Key={'StatId': 'total_unique_visitors'})
+                  item = response.get('Item', {})
+                  count = item.get('visitor_count', 0)
+                  return {
+                      'statusCode': 200,
+                      'headers': {'Content-Type': 'application/json'},
+                      'body': json.dumps({'count': int(count)})
+                  }
+
+              elif method == 'POST':
                   table.update_item(
                       Key={'StatId': 'total_unique_visitors'},
-                      UpdateExpression="ADD visit_count :inc",
+                      UpdateExpression="ADD visitor_count :inc",
                       ExpressionAttributeValues={':inc': 1}
                   )
                   return {'statusCode': 200, 'body': '{"status":"ok"}'}
-              except Exception as e:
-                  return {'statusCode': 500, 'body': str(e)}
+            except Exception as e:
+              return {'statusCode': 500, 'body': json.dumps({"error": str(e)})}
 
   UserCounterFunctionUrl:
     Type: AWS::Lambda::Url
