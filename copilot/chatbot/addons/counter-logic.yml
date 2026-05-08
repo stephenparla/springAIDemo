@@ -5,13 +5,6 @@ Parameters:
     Type: String
   Name:
     Type: String
-  CreateNewUrl:
-    Type: String
-    Default: "false"
-    AllowedValues: [ "true", "false" ]
-
-Conditions:
-  ShouldCreateUrl: !Equals [ !Ref CreateNewUrl, "true" ]
 
 Resources:
   UsersTable:
@@ -88,11 +81,19 @@ Resources:
 
   UserCounterFunctionUrl:
     Type: AWS::Lambda::Url
-    Condition: ShouldCreateUrl # Only creates if Parameter is "true"
+    DependsOn: UserCounterFunction
     Properties:
       TargetFunctionArn: !Ref UserCounterFunction
       AuthType: NONE
-
+    Cors:
+      AllowOrigins:
+        - "portfolio.bubble-sort.com"
+      AllowMethods:
+        - "GET"
+        - "POST"
+      AllowHeaders:
+        - "content-type"
+        -
   UserCounterFunctionUrlPermission:
     Type: AWS::Lambda::Permission
     Properties:
