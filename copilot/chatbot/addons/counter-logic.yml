@@ -5,6 +5,13 @@ Parameters:
     Type: String
   Name:
     Type: String
+  CreateNewUrl:
+    Type: String
+    Default: "false"
+    AllowedValues: [ "true", "false" ]
+
+Conditions:
+  ShouldCreateUrl: !Equals [ !Ref CreateNewUrl, "true" ]
 
 Resources:
   UsersTable:
@@ -81,7 +88,7 @@ Resources:
 
   UserCounterFunctionUrl:
     Type: AWS::Lambda::Url
-    DependsOn: UserCounterFunction
+    Condition: ShouldCreateUrl # Only creates if Parameter is "true"
     Properties:
       TargetFunctionArn: !Ref UserCounterFunction
       AuthType: NONE
