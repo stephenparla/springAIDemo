@@ -93,7 +93,7 @@ Resources:
         - "POST"
       AllowHeaders:
         - "content-type"
-        -
+
   UserCounterFunctionUrlPermission:
     Type: AWS::Lambda::Permission
     Properties:
