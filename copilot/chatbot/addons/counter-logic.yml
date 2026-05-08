@@ -85,14 +85,14 @@ Resources:
     Properties:
       TargetFunctionArn: !Ref UserCounterFunction
       AuthType: NONE
-    Cors:
-      AllowOrigins:
-        - "portfolio.bubble-sort.com"
-      AllowMethods:
-        - "GET"
-        - "POST"
-      AllowHeaders:
-        - "content-type"
+      Cors:
+        AllowOrigins:
+          - "portfolio.bubble-sort.com"
+        AllowMethods:
+          - "GET"
+          - "POST"
+        AllowHeaders:
+          - "content-type"
 
   UserCounterFunctionUrlPermission:
     Type: AWS::Lambda::Permission
