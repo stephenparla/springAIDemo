@@ -94,6 +94,15 @@ Resources:
       Principal: "*"
       FunctionUrlAuthType: NONE
 
+  UserCounterFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref UserCounterFunction
+      Action: lambda:InvokeFunction
+      Principal: "*"
+      # This ensures it can ONLY be invoked via the URL
+      SourceArn: !GetAtt UserCounterFunctionUrl.FunctionUrl
+
 Outputs:
   CounterLambdaUrl:
     Value: !GetAtt UserCounterFunctionUrl.FunctionUrl
