@@ -26,7 +26,8 @@ Resources:
       TargetFunctionArn: !Ref TrackerFunction
       Cors:
         AllowOrigins:
-          - "*" # For hobby projects, this allows any site to fetch the count
+          - "https://www.portfolio.bubble-sort.com"
+          - "https://portfolio.bubble-sort.com"
         AllowMethods:
           - GET
           - POST
