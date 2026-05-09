@@ -9,12 +9,13 @@ table = dynamodb.Table(os.environ['TABLE_NAME'])
 def handler(event, context):
     method = event.get('requestContext', {}).get('http', {}).get('method', 'POST')
     print(f"DEBUG: Received {method} request")
-    count = response.get('Count', 0)
-    print(f"DEBUG: GET request - Current count is {count}")
 
     if method == 'GET':
         # UI LOGIC: Return total count
         response = table.scan(Select='COUNT')
+        count = response.get('Count', 0)
+        print(f"DEBUG: GET request - Current count is {count}")
+
         return {
             'statusCode': 200,
             'headers': {
