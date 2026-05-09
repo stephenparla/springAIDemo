@@ -110,6 +110,3 @@ static_resources:
               trusted_ca:
                 filename: /etc/ssl/certs/ca-certificates.crt
 
-validation_context:
-  trusted_ca:
-    filename: /etc/ssl/certs/ca-certificates.crt
