@@ -4,7 +4,7 @@ COPY envoy.yaml /etc/envoy/envoy.yaml
 
 USER root
 # 💡 Give the envoy binary permission to bind to port 80/443 without being root
-RUN apt-get update && apt-get install -y libcap2-bin && \
+RUN apt-get update && apt-get install -y libcap2-bin ca-certificates && \
     setcap 'cap_net_bind_service=+ep' /usr/local/bin/envoy && \
     chmod 644 /etc/envoy/envoy.yaml
 
