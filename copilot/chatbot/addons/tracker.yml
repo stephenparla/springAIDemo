@@ -10,7 +10,7 @@ Resources:
   TrackerFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Code: lambdas/tracker/
+      Code: copilot/chatbot/addons/lambdas/tracker/
       Handler: index.handler
       Runtime: python3.11
       Role: !GetAtt TrackerRole.Arn
