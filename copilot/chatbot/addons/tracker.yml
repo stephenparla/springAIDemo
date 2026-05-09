@@ -1,3 +1,10 @@
+Parameters:
+  App:
+    Type: String
+  Env:
+    Type: String
+  Name:
+    Type: String
 Resources:
   # 1. THE LAMBDA FUNCTION
   TrackerFunction:

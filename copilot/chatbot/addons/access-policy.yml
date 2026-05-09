@@ -1,3 +1,10 @@
+Parameters:
+  App:
+    Type: String
+  Env:
+    Type: String
+  Name:
+    Type: String
 Resources:
   SiteUsersDdbTableAccessPolicy:
     Metadata:
