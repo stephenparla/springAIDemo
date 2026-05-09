@@ -3,29 +3,26 @@ import os
 import json
 from datetime import datetime
 
-# Initialize the DynamoDB client outside the handler for better performance
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['TABLE_NAME'])
 
 def handler(event, context):
-    # Detect if the call is from the UI (GET) or Envoy (POST)
     method = event.get('requestContext', {}).get('http', {}).get('method', 'POST')
 
     if method == 'GET':
-        # --- UI LOGIC: Return total count ---
+        # UI LOGIC: Return total count
         response = table.scan(Select='COUNT')
         return {
             'statusCode': 200,
             'headers': {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*' # Required for browser fetch
+                'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'total_users': response['Count']})
+            'body': json.dumps({'total_users': int(response['Count'])})
         }
 
     else:
-        # --- ENVOY LOGIC: Record unique visit ---
-        # (This handles POST or any other method as a 'write' attempt)
+        # ENVOY LOGIC: Record unique visit
         try:
             body = json.loads(event.get('body', '{}'))
             user_ip = body.get('ip', 'unknown_ip')
@@ -37,6 +34,4 @@ def handler(event, context):
             )
             return {'statusCode': 200, 'body': json.dumps({'status': 'logged'})}
         except Exception:
-            # We return 200 even on failure so Envoy doesn't freak out
             return {'statusCode': 200, 'body': json.dumps({'status': 'skipped'})}
-        }

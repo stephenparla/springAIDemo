@@ -33,6 +33,7 @@ Resources:
         AllowHeaders:
           - content-type
 
+  # Permission for the URL to be called
   TrackerFunctionUrlPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -40,6 +41,14 @@ Resources:
       Action: lambda:InvokeFunctionUrl
       Principal: "*"
       FunctionUrlAuthType: NONE
+
+  # ADDITIONAL REQUIRED PERMISSION
+  TrackerFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref TrackerFunction
+      Action: lambda:InvokeFunction
+      Principal: "*"
 
   # 3. THE LAMBDA ROLE (Now with SCAN permission)
   TrackerRole:

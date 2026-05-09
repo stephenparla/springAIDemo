@@ -32,16 +32,19 @@ static_resources:
                           -- Logic: Match ping path, success status, and no existing cookie
                           if string.find(path, "ping") and status == "200" and not string.find(cookie, "has_visited=true") then
                             -- Trigger Lambda Increment
+                            local client_ip = response_handle:headers():get("x-forwarded-for") or "127.0.0.1"
+                            -- Trim the IP if it contains a list of proxies
+                            client_ip = string.gsub(client_ip, ",.*", "")
+                        
                             response_handle:httpCall(
                               "lambda_counter_cluster",
                               {
                                 [":method"] = "POST",
                                 [":path"] = "/",
-                                [":authority"] = "d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws",
-                                ["content-type"] = "application/json",
-                                ["content-length"] = "2"
+                                [":authority"] = "pjpg6bbgzttnp2eendrb4nkxye0hrkhu.lambda-url.us-east-1.on.aws",
+                                ["content-type"] = "application/json"
                               },
-                              '{}',
+                              '{"ip": "' .. client_ip .. '"}',
                               500
                             )
                             -- Set cookie to prevent re-counting
@@ -68,7 +71,7 @@ static_resources:
                           route:
                             cluster: lambda_counter_cluster
                             prefix_rewrite: "/"
-                            host_rewrite_literal: d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws
+                            host_rewrite_literal: pjpg6bbgzttnp2eendrb4nkxye0hrkhu.lambda-url.us-east-1.on.aws
 
   clusters:
     - name: chatbot_service
@@ -95,14 +98,18 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws
+                      address: pjpg6bbgzttnp2eendrb4nkxye0hrkhu.lambda-url.us-east-1.on.aws
                       port_value: 443
       transport_socket:
         name: envoy.transport_sockets.tls
         typed_config:
           "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
-          sni: d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws
+          sni: pjpg6bbgzttnp2eendrb4nkxye0hrkhu.lambda-url.us-east-1.on.aws
           common_tls_context:
             validation_context:
               trusted_ca:
                 filename: /etc/ssl/certs/ca-certificates.crt
+
+validation_context:
+  trusted_ca:
+    filename: /etc/ssl/certs/ca-certificates.crt
