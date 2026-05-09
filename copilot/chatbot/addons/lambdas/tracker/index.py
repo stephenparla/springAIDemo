@@ -39,6 +39,6 @@ def handler(event, context):
             )
             print("DEBUG: Successfully logged new unique user")
             return {'statusCode': 200, 'body': json.dumps({'status': 'logged'})}
-        except Exception:
+        except Exception as e:
             print(f"DEBUG: ERROR during POST: {str(e)}")
             return {'statusCode': 200, 'body': json.dumps({'status': 'skipped'})}
