@@ -61,5 +61,5 @@ The analytics microservice is deployed as a **Lambda Function URL** with strict 
 
 ---
 
-**Developed by [Your Name]**  
+**Developed by [Stephen Parla]**  
 🔗 [Live Demo](https://www.://bubble-sort.com) | [LinkedIn](Your-LinkedIn-URL)
