@@ -21,7 +21,7 @@ def handler(event, context):
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'total_users': count)})
+            'body': json.dumps({'total_users': count})
         }
 
     else:
