@@ -9,6 +9,9 @@ static_resources:
               typed_config:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
                 stat_prefix: ingress_http
+                use_remote_address: true # <--- Tells Envoy to use the XFF header
+                xff_num_trusted_hops: 2  # <--- Trust the 1 hop from the AWS Load Balancer
+
                 http_filters:
                   # 1. Lua Filter for Unique Counter on successful Ping
                   - name: envoy.filters.http.lua
@@ -16,7 +19,18 @@ static_resources:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
                       inline_code: |
                         function envoy_on_request(request_handle)
-                          -- Capture the path to use in the response phase
+                          -- 1. Try CloudFront's direct IP header first (it includes port, e.g., "1.2.3.4:5678")
+                          local cf_viewer = request_handle:headers():get("cloudfront-viewer-address") or ""
+                          local client_ip = string.match(cf_viewer, "([^:]+)")
+                          
+                          -- 2. Fallback to parsing X-Forwarded-For if CF header is missing
+                          if not client_ip or client_ip == "" then
+                            local xff = request_handle:headers():get("x-forwarded-for") or "unknown"
+                            client_ip = string.match(xff, "([^,]+)") -- Grabs the left-most IP
+                          end
+                        
+                          request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "client_ip", client_ip)
+                          
                           local path = request_handle:headers():get(":path")
                           request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "path", path)
                         end
@@ -28,20 +42,19 @@ static_resources:
                           local path = path_meta["path"]
                           local status = response_handle:headers():get(":status")
                           local cookie = response_handle:headers():get("cookie") or ""
+                          local client_ip = path_meta["client_ip"] or "unknown"
                         
                           -- Logic: Match ping path, success status, and no existing cookie
                           if string.find(path, "ping") and status == "200" and not string.find(cookie, "has_visited=true") then
-                            -- Trigger Lambda Increment
                             response_handle:httpCall(
                               "lambda_counter_cluster",
                               {
                                 [":method"] = "POST",
                                 [":path"] = "/",
-                                [":authority"] = "d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws",
-                                ["content-type"] = "application/json",
-                                ["content-length"] = "2"
+                                [":authority"] = "pjpg6bbgzttnp2eendrb4nkxye0hrkhu.lambda-url.us-east-1.on.aws",
+                                ["content-type"] = "application/json"
                               },
-                              '{}',
+                              '{"ip":"' .. client_ip .. '"}',
                               500
                             )
                             -- Set cookie to prevent re-counting
@@ -68,7 +81,7 @@ static_resources:
                           route:
                             cluster: lambda_counter_cluster
                             prefix_rewrite: "/"
-                            host_rewrite_literal: d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws
+                            host_rewrite_literal: pjpg6bbgzttnp2eendrb4nkxye0hrkhu.lambda-url.us-east-1.on.aws
 
   clusters:
     - name: chatbot_service
@@ -95,14 +108,15 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws
+                      address: pjpg6bbgzttnp2eendrb4nkxye0hrkhu.lambda-url.us-east-1.on.aws
                       port_value: 443
       transport_socket:
         name: envoy.transport_sockets.tls
         typed_config:
           "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
-          sni: d2tgyrc5a46sdvzihy62mxm4gy0xwiny.lambda-url.us-east-1.on.aws
+          sni: pjpg6bbgzttnp2eendrb4nkxye0hrkhu.lambda-url.us-east-1.on.aws
           common_tls_context:
             validation_context:
               trusted_ca:
                 filename: /etc/ssl/certs/ca-certificates.crt
+

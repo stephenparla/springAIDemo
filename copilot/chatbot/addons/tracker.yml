@@ -1,0 +1,80 @@
+Parameters:
+  App:
+    Type: String
+  Env:
+    Type: String
+  Name:
+    Type: String
+Resources:
+  # 1. THE LAMBDA FUNCTION
+  TrackerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code: copilot/chatbot/addons/lambdas/tracker/
+      Handler: index.handler
+      Runtime: python3.11
+      Role: !GetAtt TrackerRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: { Fn::ImportValue: !Sub "${App}-${Env}-SiteUsersTableName" }
+
+  # 2. THE PUBLIC URL (With CORS for your UI)
+  TrackerFunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      AuthType: NONE
+      TargetFunctionArn: !Ref TrackerFunction
+      Cors:
+        AllowOrigins:
+          - "https://www.portfolio.bubble-sort.com"
+          - "https://portfolio.bubble-sort.com"
+        AllowMethods:
+          - GET
+          - POST
+        AllowHeaders:
+          - content-type
+
+  # Permission for the URL to be called
+  TrackerFunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref TrackerFunction
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
+  # ADDITIONAL REQUIRED PERMISSION
+  TrackerFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref TrackerFunction
+      Action: lambda:InvokeFunction
+      Principal: "*"
+
+  # 3. THE LAMBDA ROLE (Now with SCAN permission)
+  TrackerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: ["sts:AssumeRole"]
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DDBAccess
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "dynamodb:PutItem"
+                  - "dynamodb:Scan" # <--- Added for the GET call
+                Resource: { Fn::ImportValue: !Sub "${App}-${Env}-SiteUsersTableArn" }
+
+Outputs:
+  TrackerEndpoint:
+    Description: "Public URL for Envoy (POST) and UI (GET)"
+    Value: !GetAtt TrackerFunctionUrl.FunctionUrl
