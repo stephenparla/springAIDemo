@@ -9,6 +9,9 @@ static_resources:
               typed_config:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
                 stat_prefix: ingress_http
+                use_remote_address: true # <--- Tells Envoy to use the XFF header
+                xff_num_trusted_hops: 1  # <--- Trust the 1 hop from the AWS Load Balancer
+
                 http_filters:
                   # 1. Lua Filter for Unique Counter on successful Ping
                   - name: envoy.filters.http.lua
@@ -32,9 +35,11 @@ static_resources:
                           -- Logic: Match ping path, success status, and no existing cookie
                           if string.find(path, "ping") and status == "200" and not string.find(cookie, "has_visited=true") then
                             -- Trigger Lambda Increment
-                            local client_ip = response_handle:headers():get("x-forwarded-for") or "127.0.0.1"
-                            -- Trim the IP if it contains a list of proxies
-                            client_ip = string.gsub(client_ip, ",.*", "")
+                            -- Grab the full XFF header
+                            local xff = response_handle:headers():get("x-forwarded-for") or "unknown"
+    
+                            -- Split by comma and take the first IP (the original client)
+                            local client_ip = string.match(xff, "([^,]+)") or "unknown"
                         
                             response_handle:httpCall(
                               "lambda_counter_cluster",
