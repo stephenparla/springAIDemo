@@ -19,8 +19,18 @@ static_resources:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
                       inline_code: |
                         function envoy_on_request(request_handle)
-                          -- Capture the path to use in the response phase
+                          -- 1. Capture the Path
                           local path = request_handle:headers():get(":path")
+                          request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "path", path)
+
+                          -- 2. Capture the Real IP (Try XFF first, fallback to remote address)
+                          local xff = request_handle:headers():get("x-forwarded-for") or ""
+                          local client_ip = string.match(xff, "([^,]+)") -- Get first IP in list
+  
+                          if not client_ip or client_ip == "" then
+                            -- Fallback to the direct connection address if XFF is empty
+                            client_ip = request_handle:streamInfo():downstreamLocalAddress()
+                          end
                           request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "path", path)
                         end
 
