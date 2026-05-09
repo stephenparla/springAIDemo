@@ -19,20 +19,13 @@ static_resources:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
                       inline_code: |
                         function envoy_on_request(request_handle)
-                          -- 1. Try CloudFront's direct IP header first (it includes port, e.g., "1.2.3.4:5678")
-                          local cf_viewer = request_handle:headers():get("cloudfront-viewer-address") or ""
-                          local client_ip = string.match(cf_viewer, "([^:]+)")
+                          -- 1. Grab IP from Request (injected by ALB/CloudFront)
+                          local xff = request_handle:headers():get("x-forwarded-for") or ""
+                          local client_ip = string.match(xff, "([^,]+)") or "unknown"
                           
-                          -- 2. Fallback to parsing X-Forwarded-For if CF header is missing
-                          if not client_ip or client_ip == "" then
-                            local xff = request_handle:headers():get("x-forwarded-for") or "unknown"
-                            client_ip = string.match(xff, "([^,]+)") -- Grabs the left-most IP
-                          end
-                        
+                          -- 2. Store for the response phase
                           request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "client_ip", client_ip)
-                          
-                          local path = request_handle:headers():get(":path")
-                          request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "path", path)
+                          request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "path", request_handle:headers():get(":path"))
                         end
 
                         function envoy_on_response(response_handle)
